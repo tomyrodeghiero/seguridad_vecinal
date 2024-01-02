@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/screens/login_screen.dart';
+import 'package:seguridad_vecinal/screens/onboarding_screen.dart';
 import 'package:seguridad_vecinal/screens/personal_info_screen.dart';
 import 'package:seguridad_vecinal/screens/register_screen.dart';
 
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/register': (context) => RegisterScreen(),
         '/personalInfoScreen': (context) => PersonalInfoScreen(),
+        '/onboarding': (context) => OnboardingScreen(),
       },
     );
   }

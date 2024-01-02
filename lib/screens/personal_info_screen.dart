@@ -197,23 +197,23 @@ class PersonalInfoScreen extends StatelessWidget {
       floatingActionButton: Align(
         alignment: Alignment.bottomRight,
         child: InkWell(
-          onTap: () {},
+          onTap: () {
+            Navigator.of(context).pushNamed('/onboarding'); // Añade esta línea
+          },
           child: Container(
-            width: 56, // Tamaño estándar de un FloatingActionButton
+            width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: Colors.white, // Color de fondo blanco
-              borderRadius: BorderRadius.circular(100), // BorderRadius de 100
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(100),
             ),
             child: Icon(
               Icons.arrow_forward,
-              color: AppColors.waterGreen300, // Ícono con color waterGreen300
+              color: AppColors.waterGreen300,
             ),
           ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation
-          .endFloat, // Posiciona el FAB a la derecha
     );
   }
 }
