@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/screens/login_screen.dart';
 import 'package:seguridad_vecinal/screens/onboarding_screen.dart';
 import 'package:seguridad_vecinal/screens/personal_info_screen.dart';
+import 'package:seguridad_vecinal/screens/profile_screen.dart';
 import 'package:seguridad_vecinal/screens/register_screen.dart';
 
 void main() => runApp(MyApp());
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
         '/register': (context) => RegisterScreen(),
         '/personalInfoScreen': (context) => PersonalInfoScreen(),
         '/onboarding': (context) => OnboardingScreen(),
+        '/profile': (context) => ProfileScreen(),
       },
     );
   }

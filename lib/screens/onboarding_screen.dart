@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/colors.dart';
+import 'package:seguridad_vecinal/screens/profile_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -88,7 +89,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                         child: Icon(Icons.check, color: Colors.white),
                         onPressed: () {
-                          // TODO: Add rest login of Onboarding
+                          Navigator.of(context)
+                              .pushReplacement(MaterialPageRoute(
+                            builder: (context) => ProfileScreen(),
+                          ));
                         },
                       ),
               ),
