@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/colors.dart';
-import 'package:seguridad_vecinal/screens/profile_screen.dart';
+import 'package:seguridad_vecinal/screens/home_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -91,7 +91,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         onPressed: () {
                           Navigator.of(context)
                               .pushReplacement(MaterialPageRoute(
-                            builder: (context) => ProfileScreen(),
+                            builder: (context) => HomeScreen(),
                           ));
                         },
                       ),
