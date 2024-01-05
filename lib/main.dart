@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/screens/home_screen.dart';
 import 'package:seguridad_vecinal/screens/login_screen.dart';
+import 'package:seguridad_vecinal/screens/notifications_screen.dart';
 import 'package:seguridad_vecinal/screens/onboarding_screen.dart';
 import 'package:seguridad_vecinal/screens/personal_info_screen.dart';
 import 'package:seguridad_vecinal/screens/profile_screen.dart';
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
         '/onboarding': (context) => OnboardingScreen(),
         '/profile': (context) => ProfileScreen(),
         '/home': (context) => HomeScreen(),
+        '/notifications': (context) => NotificationsScreen(),
       },
     );
   }

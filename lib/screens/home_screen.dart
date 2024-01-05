@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/colors.dart';
+import 'package:seguridad_vecinal/screens/notifications_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -258,7 +259,12 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => NotificationsScreen()),
+          );
+        },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(30.0)),
         ),
