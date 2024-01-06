@@ -9,16 +9,21 @@ import 'package:seguridad_vecinal/screens/register_screen.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Login Screen',
+      title: 'Flutter Navigation',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: LoginScreen(),
+      home: LoginScreen(), // Inicia con LoginScreen
       routes: {
         '/register': (context) => RegisterScreen(),
         '/personalInfoScreen': (context) => PersonalInfoScreen(),

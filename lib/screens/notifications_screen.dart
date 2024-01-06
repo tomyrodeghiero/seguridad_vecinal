@@ -71,34 +71,6 @@ class NotificationsScreen extends StatelessWidget {
           );
         },
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: Colors.grey, width: 1.0),
-          ),
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: Colors.white,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home, color: AppColors.waterGreen400),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.location_on, color: AppColors.waterGreen400),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.language, color: AppColors.waterGreen400),
-              label: '',
-            ),
-          ],
-          selectedItemColor: AppColors.waterGreen400,
-          unselectedItemColor: Colors.grey[100],
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-        ),
-      ),
     );
   }
 

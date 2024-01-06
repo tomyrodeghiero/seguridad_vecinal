@@ -1,38 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/colors.dart';
+import 'package:seguridad_vecinal/screens/community_post_screen.dart';
 import 'package:seguridad_vecinal/screens/notifications_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class CommunityDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 0,
-        leading: Builder(
-          builder: (BuildContext context) {
-            return IconButton(
-              icon: const Icon(Icons.menu, color: Colors.black),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            );
-          },
+        centerTitle: false,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.black,
+            size: 28.0,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Container(
-              width: 35,
-              height: 35,
-              decoration: BoxDecoration(
-                color: AppColors.waterGreen400,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ],
-        ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28.0),
+            onPressed: () {},
+          ),
+        ],
       ),
       drawer: Drawer(
         backgroundColor: AppColors.waterGreen400,
@@ -131,6 +122,75 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                bottom: 14.0,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(
+                        2), // Ajusta el padding para el tamaño del borde
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.grey, // Color del borde
+                        width: 1, // Ancho del borde
+                      ),
+                    ),
+                    height: 100.0,
+                    width: 100.0,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.white,
+                      radius: 30,
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Banda Norte', // Nombre de la comunidad
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22.0,
+                          ),
+                        ),
+                        Text(
+                          '22 miembros', // Cantidad de miembros
+                          style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16.0,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        Container(
+                          height: 28.0,
+                          child: FloatingActionButton.extended(
+                            onPressed: () {},
+                            label: Text(
+                              'Unirme'.toUpperCase(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14.0,
+                              ),
+                            ),
+                            elevation: 0,
+                            backgroundColor: AppColors.waterGreen400,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(50.0)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -140,7 +200,7 @@ class HomeScreen extends StatelessWidget {
               ),
               padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
               child: Text(
-                'Noticias de Río Cuarto',
+                'Noticias',
                 style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.w500,
@@ -196,34 +256,44 @@ class HomeScreen extends StatelessWidget {
                         )
                       : SizedBox();
 
-                  return Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(width: 1.0, color: Colors.grey),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-                          leading: leadingWidget,
-                          title: Text(
-                            newsTitle,
-                            style: TextStyle(
-                                color: AppColors.waterGreen400,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 18.0),
-                          ),
-                          subtitle: Text(
-                            newsSubtitle,
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 15.0,
-                                fontWeight: FontWeight.w500),
-                          ),
+                  return InkWell(
+                    onTap: () {
+                      // Navegar a CommunityPostScreen cuando se toque el ListTile
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CommunityPostScreen()),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(width: 1.0, color: Colors.grey),
                         ),
-                        imageWidget,
-                      ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListTile(
+                            leading: leadingWidget,
+                            title: Text(
+                              newsTitle,
+                              style: TextStyle(
+                                  color: AppColors.waterGreen400,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 18.0),
+                            ),
+                            subtitle: Text(
+                              newsSubtitle,
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 15.0,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                          imageWidget,
+                        ],
+                      ),
                     ),
                   );
                 },

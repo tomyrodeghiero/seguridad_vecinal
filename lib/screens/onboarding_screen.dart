@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/colors.dart';
-import 'package:seguridad_vecinal/screens/home_screen.dart';
+import 'package:seguridad_vecinal/screens/main_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -89,10 +89,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                         child: Icon(Icons.check, color: Colors.white),
                         onPressed: () {
-                          Navigator.of(context)
-                              .pushReplacement(MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
-                          ));
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MainScreen()),
+                          );
                         },
                       ),
               ),
