@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/colors.dart';
 import 'package:seguridad_vecinal/screens/notifications_screen.dart';
+import 'package:seguridad_vecinal/screens/profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -77,7 +78,13 @@ class HomeScreen extends StatelessWidget {
                                   fontWeight: FontWeight.bold),
                             ),
                             TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ProfileScreen()),
+                                );
+                              },
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[

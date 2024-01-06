@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/colors.dart';
-import 'package:seguridad_vecinal/screens/community_detail_screen.dart';
-import 'package:seguridad_vecinal/screens/community_post_screen.dart';
 import 'package:seguridad_vecinal/screens/community_screen.dart';
 import 'package:seguridad_vecinal/screens/home_screen.dart';
-import 'package:seguridad_vecinal/screens/notifications_screen.dart';
+import 'package:seguridad_vecinal/screens/map_screen.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -16,10 +14,8 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     HomeScreen(),
-    NotificationsScreen(),
+    MapScreen(),
     CommunityScreen(),
-    CommunityDetailScreen(),
-    CommunityPostScreen(),
   ];
 
   void _onItemTapped(int index) {
