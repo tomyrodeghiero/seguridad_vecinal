@@ -13,20 +13,20 @@ class LoginScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Container(
-              width: 160.0, // El diámetro del círculo
-              height: 160.0, // El diámetro del círculo
+              width: 160.0,
+              height: 160.0,
               decoration: BoxDecoration(
-                color: Colors.transparent, // Fondo transparente
-                shape: BoxShape.circle, // Forma circular
+                color: Colors.transparent,
+                shape: BoxShape.circle,
                 border: Border.all(
-                  color: Colors.black, // Color del borde
-                  width: 2.0, // Ancho del borde
+                  color: Colors.black,
+                  width: 2.0,
                 ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(
-                  vertical: 20.0), // Esto agrega padding vertical
+                  vertical: 32.0), // Esto agrega padding vertical
               child: Text(
                 '¿Ya tienes cuenta?',
                 textAlign: TextAlign.center,
@@ -36,7 +36,6 @@ class LoginScreen extends StatelessWidget {
                     fontWeight: FontWeight.w500),
               ),
             ),
-            SizedBox(height: 18.0),
             TextFormField(
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
@@ -67,9 +66,11 @@ class LoginScreen extends StatelessWidget {
             PasswordField(),
             SizedBox(height: 40.0),
             ElevatedButton(
-              child: Text('REGISTRARTE'),
+              child: Text(
+                'REGISTRARTE',
+                style: TextStyle(fontSize: 16.0),
+              ),
               onPressed: () {
-                // Navega a la pantalla de registro
                 Navigator.pushNamed(context, '/register');
               },
               style: ElevatedButton.styleFrom(

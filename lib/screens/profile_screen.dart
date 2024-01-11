@@ -21,9 +21,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           child: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
-              _scaffoldKey.currentState?.openDrawer();
-            },
+            onPressed: () => Navigator.of(context).pop(),
           ),
         ),
         leadingWidth: 56,

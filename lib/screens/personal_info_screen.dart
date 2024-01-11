@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/colors.dart'; // Asegúrate de tener este archivo con la definición de los colores
 
-class PersonalInfoScreen extends StatelessWidget {
+class PersonalInfoScreen extends StatefulWidget {
+  @override
+  _PersonalInfoScreenState createState() => _PersonalInfoScreenState();
+}
+
+class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
+  String? selectedGender; // null indica que no hay selección inicial
+  TextEditingController ageController = TextEditingController();
+
+  @override
+  void dispose() {
+    ageController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    String selectedGender = 'F';
-    String selectedAge = '18';
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -55,22 +66,18 @@ class PersonalInfoScreen extends StatelessWidget {
                 child: ElevatedButton(
                   child: Text(
                     'Tomar imagen',
-                    style: TextStyle(
-                        color: Colors
-                            .white), // Establece el color del texto a blanco
+                    style: TextStyle(color: Colors.white, fontSize: 16.0),
                   ),
-                  onPressed: () {
-                    // Implementa la funcionalidad para tomar una imagen
-                  },
+                  onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    primary:
-                        AppColors.waterGreen300, // Color de fondo del botón
+                    primary: AppColors.waterGreen300, // Fondo blanco
+                    onPrimary: AppColors
+                        .waterGreen300, // Color de la letra cuando se presiona el botón
+                    elevation: 0, // No sombra
                     shape: RoundedRectangleBorder(
                       borderRadius:
-                          BorderRadius.circular(30), // Borde redondeado
+                          BorderRadius.circular(100.0), // Borde redondeado
                     ),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 16), // Ajusta el padding aquí
                   ),
                 ),
               ),
@@ -79,39 +86,44 @@ class PersonalInfoScreen extends StatelessWidget {
                 child: ElevatedButton(
                   child: Text(
                     'Subir imagen',
-                    style: TextStyle(
-                        color: Colors
-                            .white), // Establece el color del texto a blanco
+                    style: TextStyle(color: Colors.white, fontSize: 16.0),
                   ),
-                  onPressed: () {
-                    // Implementa la funcionalidad para subir una imagen
-                  },
+                  onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    primary:
-                        AppColors.waterGreen300, // Color de fondo del botón
+                    primary: AppColors.waterGreen300, // Fondo blanco
+                    onPrimary: AppColors
+                        .waterGreen300, // Color de la letra cuando se presiona el botón
+                    elevation: 0, // No sombra
                     shape: RoundedRectangleBorder(
                       borderRadius:
-                          BorderRadius.circular(30), // Borde redondeado
+                          BorderRadius.circular(100.0), // Borde redondeado
                     ),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 16), // Ajusta el padding aquí
                   ),
                 ),
               ),
 
               SizedBox(height: 20.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Text(
+                  'Nombre y apellido',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      color: AppColors.waterGreen400,
+                      fontWeight: FontWeight.w500),
+                ),
+              ),
               TextFormField(
                 decoration: InputDecoration(
                   hintText:
                       'Ej. Luciana Gonzales', // Texto de ejemplo dentro del campo
                   hintStyle: TextStyle(
                       color: Colors.grey), // Estilo del texto de ejemplo
-                  labelText: 'Nombre y apellido',
+                  floatingLabelBehavior: FloatingLabelBehavior.never,
                   labelStyle: TextStyle(
                       color: AppColors
                           .waterGreen300), // Estilo de la etiqueta flotante
-                  floatingLabelBehavior: FloatingLabelBehavior
-                      .always, // La etiqueta siempre es visible
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30.0),
                     borderSide: BorderSide(color: AppColors.waterGreen300),
@@ -119,12 +131,12 @@ class PersonalInfoScreen extends StatelessWidget {
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30.0),
                     borderSide:
-                        BorderSide(color: AppColors.waterGreen200, width: 2.0),
+                        BorderSide(color: AppColors.waterGreen200, width: 1.0),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30.0),
                     borderSide:
-                        BorderSide(color: AppColors.waterGreen300, width: 2.0),
+                        BorderSide(color: AppColors.waterGreen300, width: 1.0),
                   ),
                 ),
               ),
@@ -138,23 +150,28 @@ class PersonalInfoScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30.0),
                         border: Border.all(
-                            color: AppColors.waterGreen300, width: 2),
+                            color: AppColors.waterGreen400, width: 1.0),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
+                          hint: Text('F | M | O',
+                              style: TextStyle(color: Colors.grey)),
                           value: selectedGender,
                           icon: Icon(Icons.arrow_drop_down,
-                              color: AppColors.waterGreen300),
-                          items: <String>['F', 'M', 'O']
-                              .map<DropdownMenuItem<String>>((String value) {
+                              color: AppColors.waterGreen400),
+                          items: <String>['F', 'M', 'O'].map((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
                               child: Text(value,
                                   style: TextStyle(
-                                      color: AppColors.waterGreen300)),
+                                      color: AppColors.waterGreen400)),
                             );
                           }).toList(),
-                          onChanged: (String? value) {},
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedGender = newValue;
+                            });
+                          },
                         ),
                       ),
                     ),
@@ -166,23 +183,32 @@ class PersonalInfoScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30.0),
                         border: Border.all(
-                            color: AppColors.waterGreen300, width: 2),
+                            color: AppColors.waterGreen400, width: 1.0),
                       ),
                       child: Row(
                         children: <Widget>[
                           Expanded(
-                            child: Text(
-                              selectedAge,
-                              style: TextStyle(color: AppColors.waterGreen300),
+                            child: TextField(
+                              controller: ageController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                border: InputBorder
+                                    .none, // Elimina el borde en todas las situaciones
+                                enabledBorder: InputBorder
+                                    .none, // Específicamente, cuando el TextField está habilitado
+                                focusedBorder: InputBorder
+                                    .none, // Cuando el TextField está enfocado
+                                hintText: '18',
+                                hintStyle: TextStyle(color: Colors.grey),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical:
+                                        10.0), // Ajusta el padding vertical como sea necesario
+                              ),
+                              style: TextStyle(color: AppColors.waterGreen400),
                             ),
                           ),
-                          IconButton(
-                            icon: Icon(Icons.arrow_forward_ios,
-                                color: AppColors.waterGreen300),
-                            onPressed: () {
-                              // Implement the action when the arrow is tapped
-                            },
-                          ),
+                          Icon(Icons.arrow_forward_ios,
+                              color: AppColors.waterGreen400),
                         ],
                       ),
                     ),

@@ -6,37 +6,49 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.waterGreen300, // Fondo waterGreen300
+      backgroundColor: AppColors.waterGreen300,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0, // Elimina la sombra del AppBar
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: AppColors.waterGreen400), // Icono con color waterGreen400
+          icon: Icon(Icons.arrow_back, color: AppColors.waterGreen400),
           onPressed: () {
-            Navigator.of(context).pop(); // Regresa a la pantalla anterior
+            Navigator.of(context).pop();
           },
         ),
         title: Text(
           'Registro de cuenta',
-          style: TextStyle(
-              color: AppColors.waterGreen400), // Texto con color waterGreen400
+          style: TextStyle(color: AppColors.waterGreen400),
         ),
-        centerTitle: true, // Centrar el título
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
-        // Asegura que la pantalla sea desplazable cuando el teclado esté visible
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 40.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               SizedBox(height: 64.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Text(
+                  'Mail',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400),
+                ),
+              ),
               TextFormField(
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Ingresa tu mail',
                   labelStyle: TextStyle(color: Colors.grey),
+                  floatingLabelBehavior: FloatingLabelBehavior
+                      .never, // Previene que el label flote
+                  hintText:
+                      'Ingresa tu mail', // Muestra el texto del label como placeholder
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
                   filled: true,
@@ -61,8 +73,19 @@ class RegisterScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 40.0),
-              PasswordField(), // Widget personalizado para el campo de contraseña
+              SizedBox(height: 32.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Text(
+                  'Contraseña',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400),
+                ),
+              ),
+              PasswordField(isLabelFloating: false),
               SizedBox(height: 16.0),
               Text(
                 '*Debe contener mínimo 6 caracteres, un carácter numérico y no debe ser idéntico al nombre de usuario',
@@ -71,10 +94,19 @@ class RegisterScreen extends StatelessWidget {
                   fontSize: 14.0,
                 ),
               ),
-
               SizedBox(height: 32.0),
-              PasswordField(), // Puedes reutilizar este widget para "Verificar contraseña"
-
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Text(
+                  'Verificar contraseña',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400),
+                ),
+              ),
+              PasswordField(isLabelFloating: false),
               SizedBox(height: 48.0),
               RichText(
                 textAlign: TextAlign.left,
@@ -94,8 +126,7 @@ class RegisterScreen extends StatelessWidget {
                   child: Text(
                     'Aceptar',
                     style: TextStyle(
-                        color: AppColors
-                            .waterGreen300), // Establece el color del texto
+                        color: AppColors.waterGreen300, fontSize: 16.0),
                   ),
                   onPressed: () {
                     // Aquí manejarías el registro

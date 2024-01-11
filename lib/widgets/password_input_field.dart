@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:seguridad_vecinal/colors.dart';
+import 'package:seguridad_vecinal/colors.dart'; // Asumiendo que tus colores personalizados están aquí
 
 class PasswordField extends StatefulWidget {
+  final bool isLabelFloating; // Nuevo parámetro
+
+  PasswordField({this.isLabelFloating = true}); // Valor por defecto es true
+
   @override
   _PasswordFieldState createState() => _PasswordFieldState();
 }
@@ -13,11 +17,17 @@ class _PasswordFieldState extends State<PasswordField> {
   Widget build(BuildContext context) {
     return TextFormField(
       keyboardType: TextInputType.text,
-      obscureText:
-          _obscureText, // El estado controla si la contraseña es visible o no
+      obscureText: _obscureText,
       decoration: InputDecoration(
         labelText: 'Contraseña',
         labelStyle: TextStyle(color: Colors.grey),
+        floatingLabelBehavior: widget.isLabelFloating
+            ? FloatingLabelBehavior.auto
+            : FloatingLabelBehavior.never, // Usar el parámetro aquí
+        hintText: widget.isLabelFloating
+            ? null
+            : 'Contraseña', // Si el label no flota, mostrar el hintText
+        hintStyle: TextStyle(color: Colors.grey),
         contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
         filled: true,
         fillColor: Colors.white,
@@ -34,11 +44,13 @@ class _PasswordFieldState extends State<PasswordField> {
         ),
         suffixIcon: IconButton(
           icon: Icon(
-            // Cambia el ícono basado en la visibilidad de la contraseña
-            _obscureText ? Icons.visibility_off : Icons.visibility,
+            _obscureText
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
+            color: AppColors
+                .waterGreen400, // Asegúrate de que este color esté definido en tu clase AppColors
           ),
           onPressed: () {
-            // Actualiza el estado al presionar el ícono
             setState(() {
               _obscureText = !_obscureText;
             });

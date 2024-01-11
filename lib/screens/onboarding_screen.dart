@@ -70,6 +70,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 padding: EdgeInsets.all(10.0),
                 child: _currentPage != _numPages - 1
                     ? FloatingActionButton(
+                        elevation: 0,
                         backgroundColor: AppColors.waterGreen400,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(30.0)),
@@ -83,6 +84,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         },
                       )
                     : FloatingActionButton(
+                        elevation: 0,
                         backgroundColor: AppColors.waterGreen400,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(30.0)),

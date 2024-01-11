@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/colors.dart';
+import 'package:seguridad_vecinal/screens/community_post_screen.dart';
 import 'package:seguridad_vecinal/screens/notifications_screen.dart';
 import 'package:seguridad_vecinal/screens/profile_screen.dart';
 
@@ -203,34 +204,43 @@ class HomeScreen extends StatelessWidget {
                         )
                       : SizedBox();
 
-                  return Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(width: 1.0, color: Colors.grey),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-                          leading: leadingWidget,
-                          title: Text(
-                            newsTitle,
-                            style: TextStyle(
-                                color: AppColors.waterGreen400,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 18.0),
-                          ),
-                          subtitle: Text(
-                            newsSubtitle,
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 15.0,
-                                fontWeight: FontWeight.w500),
-                          ),
+                  return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CommunityPostScreen()),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(width: 1.0, color: Colors.grey),
                         ),
-                        imageWidget,
-                      ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListTile(
+                            leading: leadingWidget,
+                            title: Text(
+                              newsTitle,
+                              style: TextStyle(
+                                  color: AppColors.waterGreen400,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 18.0),
+                            ),
+                            subtitle: Text(
+                              newsSubtitle,
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 15.0,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                          imageWidget,
+                        ],
+                      ),
                     ),
                   );
                 },
