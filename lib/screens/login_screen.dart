@@ -6,6 +6,7 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(
@@ -13,15 +14,11 @@ class LoginScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Container(
-              width: 160.0,
-              height: 160.0,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.black,
-                  width: 2.0,
-                ),
+              width: 80.0, // Ajusta este valor según sea necesario
+              height: 80.0, // Ajusta este valor según sea necesario
+              child: Image.asset(
+                'assets/cori-full-logotype.png', // Asegúrate de que el PNG esté en la carpeta de assets
+                fit: BoxFit.contain, // Esto asegurará que el PNG se ajuste bien
               ),
             ),
             Padding(
@@ -32,7 +29,7 @@ class LoginScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 20.0,
-                    color: AppColors.waterGreen100,
+                    color: AppColors.purple500,
                     fontWeight: FontWeight.w500),
               ),
             ),
@@ -50,14 +47,14 @@ class LoginScreen extends StatelessWidget {
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
-                      color: AppColors.waterGreen200,
+                      color: AppColors.purple500,
                       width:
                           2.0), // Asegúrate de que el color esté definido en la clase AppColors
                   borderRadius: BorderRadius.circular(100.0),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderSide:
-                      BorderSide(color: AppColors.waterGreen200, width: 2.0),
+                      BorderSide(color: AppColors.purple500, width: 2.0),
                   borderRadius: BorderRadius.circular(100.0),
                 ),
               ),
@@ -74,8 +71,40 @@ class LoginScreen extends StatelessWidget {
                 Navigator.pushNamed(context, '/register');
               },
               style: ElevatedButton.styleFrom(
-                primary: AppColors.waterGreen300, // background (button) color
-                onPrimary: Colors.white, // foreground (text) color
+                primary: AppColors.purple500,
+                onPrimary: Colors.white,
+                padding: EdgeInsets.symmetric(
+                    vertical: 12.0), // Tamaño vertical del botón
+              ),
+            ),
+            SizedBox(height: 12.0),
+            ElevatedButton(
+              onPressed: () {
+                // Implementar funcionalidad de inicio de sesión con Google
+              },
+              style: ElevatedButton.styleFrom(
+                primary: AppColors.purple500, // Color de fondo del botón
+                onPrimary: Colors.white, // Color de texto del botón
+                padding: EdgeInsets.symmetric(
+                    vertical: 12.0), // Tamaño vertical del botón
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment
+                    .center, // Centrar horizontalmente el contenido
+                children: <Widget>[
+                  Text(
+                    'Continuar con',
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                  SizedBox(width: 8.0), // Espacio entre texto e imagen
+                  // Usamos un widget Flexible para evitar problemas de overflow
+                  Flexible(
+                    child: Image.asset(
+                      'assets/google-white-logo.png', // Asegúrate de que el PNG esté en la carpeta de assets
+                      height: 24.0, // Altura del logo
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

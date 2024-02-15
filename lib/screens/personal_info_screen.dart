@@ -23,12 +23,15 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.waterGreen400),
+          icon: Image.asset(
+            'assets/back-arrow.png',
+            height: 24.0,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Datos personales',
-          style: TextStyle(color: AppColors.waterGreen400),
+          style: TextStyle(color: AppColors.purple500),
         ),
         centerTitle: true,
       ),
@@ -38,70 +41,73 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Container(
-                width: 160.0, // El diámetro del círculo
-                height: 160.0, // El diámetro del círculo
-                decoration: BoxDecoration(
-                  color: Colors.transparent, // Fondo transparente
-                  shape: BoxShape.circle, // Forma circular
-                  border: Border.all(
-                    color: Colors.black, // Color del borde
-                    width: 2.0, // Ancho del borde
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 20.0), // Esto agrega padding vertical
-                child: Text(
-                  '¡Agrega una imagen!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 20.0,
-                      color: AppColors.waterGreen100,
-                      fontWeight: FontWeight.w500),
-                ),
-              ),
-              Center(
-                child: ElevatedButton(
-                  child: Text(
-                    'Tomar imagen',
-                    style: TextStyle(color: Colors.white, fontSize: 16.0),
-                  ),
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    primary: AppColors.waterGreen300, // Fondo blanco
-                    onPrimary: AppColors
-                        .waterGreen300, // Color de la letra cuando se presiona el botón
-                    elevation: 0, // No sombra
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(100.0), // Borde redondeado
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Container(
+                    width: 120.0,
+                    height: 120.0,
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.black,
+                        width: 2.0,
+                      ),
                     ),
                   ),
-                ),
-              ),
-              SizedBox(height: 16), // Espacio entre los botones
-              Center(
-                child: ElevatedButton(
-                  child: Text(
-                    'Subir imagen',
-                    style: TextStyle(color: Colors.white, fontSize: 16.0),
-                  ),
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    primary: AppColors.waterGreen300, // Fondo blanco
-                    onPrimary: AppColors
-                        .waterGreen300, // Color de la letra cuando se presiona el botón
-                    elevation: 0, // No sombra
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(100.0), // Borde redondeado
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(
+                            '¡Agrega una imagen!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 20.0,
+                                color: AppColors.purple500,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                        ElevatedButton(
+                          child: Text(
+                            'Tomar imagen',
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 16.0),
+                          ),
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            primary: AppColors.purple500,
+                            onPrimary: AppColors.purple500,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(100.0),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 4.0),
+                        ElevatedButton(
+                          child: Text(
+                            'Subir imagen',
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 16.0),
+                          ),
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            primary: AppColors.purple500,
+                            onPrimary: AppColors.purple500,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(100.0),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
+                ],
               ),
-
               SizedBox(height: 20.0),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -110,37 +116,35 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                   textAlign: TextAlign.left,
                   style: TextStyle(
                       fontSize: 16.0,
-                      color: AppColors.waterGreen400,
+                      color: AppColors.purple500,
                       fontWeight: FontWeight.w500),
                 ),
               ),
               TextFormField(
                 decoration: InputDecoration(
-                  hintText:
-                      'Ej. Luciana Gonzales', // Texto de ejemplo dentro del campo
-                  hintStyle: TextStyle(
-                      color: Colors.grey), // Estilo del texto de ejemplo
+                  hintText: 'Ej. Luciana Gonzales',
+                  hintStyle: TextStyle(color: Colors.grey),
                   floatingLabelBehavior: FloatingLabelBehavior.never,
-                  labelStyle: TextStyle(
-                      color: AppColors
-                          .waterGreen300), // Estilo de la etiqueta flotante
+                  labelStyle: TextStyle(color: AppColors.purple500),
+                  contentPadding: EdgeInsets.symmetric(
+                      vertical: 12.0,
+                      horizontal: 16.0), // Ajusta el padding aquí
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30.0),
-                    borderSide: BorderSide(color: AppColors.waterGreen300),
+                    borderSide: BorderSide(color: AppColors.purple500),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30.0),
                     borderSide:
-                        BorderSide(color: AppColors.waterGreen200, width: 1.0),
+                        BorderSide(color: AppColors.purple500, width: 1.0),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30.0),
                     borderSide:
-                        BorderSide(color: AppColors.waterGreen300, width: 1.0),
+                        BorderSide(color: AppColors.purple500, width: 1.0),
                   ),
                 ),
               ),
-
               SizedBox(height: 20.0),
               Row(
                 children: <Widget>[
@@ -149,8 +153,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                       padding: EdgeInsets.symmetric(horizontal: 10.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30.0),
-                        border: Border.all(
-                            color: AppColors.waterGreen400, width: 1.0),
+                        border:
+                            Border.all(color: AppColors.purple500, width: 1.0),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
@@ -158,13 +162,13 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                               style: TextStyle(color: Colors.grey)),
                           value: selectedGender,
                           icon: Icon(Icons.arrow_drop_down,
-                              color: AppColors.waterGreen400),
-                          items: <String>['F', 'M', 'O'].map((String value) {
+                              color: AppColors.purple500),
+                          items: <String>['Femenino', 'Masculino', 'No decir']
+                              .map((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
                               child: Text(value,
-                                  style: TextStyle(
-                                      color: AppColors.waterGreen400)),
+                                  style: TextStyle(color: Colors.black)),
                             );
                           }).toList(),
                           onChanged: (String? newValue) {
@@ -182,8 +186,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                       padding: EdgeInsets.symmetric(horizontal: 10.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30.0),
-                        border: Border.all(
-                            color: AppColors.waterGreen400, width: 1.0),
+                        border:
+                            Border.all(color: AppColors.purple500, width: 1.0),
                       ),
                       child: Row(
                         children: <Widget>[
@@ -204,11 +208,11 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                                     vertical:
                                         10.0), // Ajusta el padding vertical como sea necesario
                               ),
-                              style: TextStyle(color: AppColors.waterGreen400),
+                              style: TextStyle(color: AppColors.purple500),
                             ),
                           ),
                           Icon(Icons.arrow_forward_ios,
-                              color: AppColors.waterGreen400),
+                              color: AppColors.purple500),
                         ],
                       ),
                     ),
@@ -216,6 +220,132 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                 ],
               ),
               SizedBox(height: 20.0),
+
+// Agrega un título para el desplegable de Barrio
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Text(
+                  'Barrio',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      color: AppColors.purple500,
+                      fontWeight: FontWeight.w500),
+                ),
+              ),
+
+              // Desplegable para seleccionar el Barrio
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                    borderSide: BorderSide(color: AppColors.purple500),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                    borderSide:
+                        BorderSide(color: AppColors.purple500, width: 1.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                    borderSide:
+                        BorderSide(color: AppColors.purple500, width: 1.0),
+                  ),
+                ),
+                hint: Text('Selecciona tu barrio'),
+                items: <String>['Barrio 1', 'Barrio 2', 'Barrio 3']
+                    .map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  // Añade tu lógica para manejar el cambio de selección
+                },
+              ),
+
+              SizedBox(height: 20.0),
+
+              // Agrega los campos para Contactos directos
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Text(
+                  'Contactos directos',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      color: AppColors.purple500,
+                      fontWeight: FontWeight.w500),
+                ),
+              ),
+
+              // Primer campo de Contactos directos
+              TextFormField(
+                decoration: InputDecoration(
+                  hintText: 'Ej. 358 513 5564',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(color: AppColors.purple500),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide:
+                        BorderSide(color: AppColors.purple500, width: 1.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide:
+                        BorderSide(color: AppColors.purple500, width: 1.0),
+                  ),
+                ),
+                keyboardType: TextInputType.phone,
+              ),
+
+              SizedBox(height: 10.0),
+
+// Segundo campo de Contactos directos
+              TextFormField(
+                decoration: InputDecoration(
+                  hintText: 'Ej. 358 511 5548',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(color: AppColors.purple500),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide:
+                        BorderSide(color: AppColors.purple500, width: 1.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide:
+                        BorderSide(color: AppColors.purple500, width: 1.0),
+                  ),
+                ),
+                keyboardType: TextInputType.phone,
+              ),
+
+              SizedBox(height: 24.0),
+              RichText(
+                textAlign: TextAlign.left,
+                text: TextSpan(
+                  style: TextStyle(color: AppColors.purple500, fontSize: 16.0),
+                  children: <TextSpan>[
+                    TextSpan(
+                        text:
+                            'Elegir contactos de vínculos cercano para en el caso de enviar una alarma puedan ayudar'),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -224,18 +354,24 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
         alignment: Alignment.bottomRight,
         child: InkWell(
           onTap: () {
-            Navigator.of(context).pushNamed('/onboarding'); // Añade esta línea
+            Navigator.of(context).pushNamed(
+                '/onboarding'); // Navega a la pantalla de información personal
           },
           child: Container(
-            width: 56,
+            width: 56, // Tamaño estándar de un FloatingActionButton
             height: 56,
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(100),
+              color: AppColors.purple500, // Color de fondo blanco
+              borderRadius: BorderRadius.circular(100), // BorderRadius de 100
             ),
-            child: Icon(
-              Icons.arrow_forward,
-              color: AppColors.waterGreen300,
+            child: Center(
+              // Centra el ícono en el Container
+              child: Image.asset(
+                'assets/forward-arrow.png',
+                height: 24.0,
+                width: 24.0,
+                color: Colors.white,
+              ),
             ),
           ),
         ),

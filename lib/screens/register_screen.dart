@@ -6,19 +6,22 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.waterGreen300,
+      backgroundColor: AppColors.purple500,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.waterGreen400),
+          icon: Image.asset(
+            'assets/back-arrow.png',
+            height: 24.0,
+          ),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         title: Text(
           'Registro de cuenta',
-          style: TextStyle(color: AppColors.waterGreen400),
+          style: TextStyle(color: AppColors.purple500),
         ),
         centerTitle: true,
       ),
@@ -60,14 +63,14 @@ class RegisterScreen extends StatelessWidget {
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(100.0),
                     borderSide: BorderSide(
-                      color: AppColors.waterGreen200,
+                      color: AppColors.purple500,
                       width: 2.0,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(100.0),
                     borderSide: BorderSide(
-                      color: AppColors.waterGreen200,
+                      color: AppColors.purple500,
                       width: 2.0,
                     ),
                   ),
@@ -125,8 +128,8 @@ class RegisterScreen extends StatelessWidget {
                 child: ElevatedButton(
                   child: Text(
                     'Aceptar',
-                    style: TextStyle(
-                        color: AppColors.waterGreen300, fontSize: 16.0),
+                    style:
+                        TextStyle(color: AppColors.purple500, fontSize: 16.0),
                   ),
                   onPressed: () {
                     // Aquí manejarías el registro
@@ -161,13 +164,18 @@ class RegisterScreen extends StatelessWidget {
               color: Colors.white, // Color de fondo blanco
               borderRadius: BorderRadius.circular(100), // BorderRadius de 100
             ),
-            child: Icon(
-              Icons.arrow_forward,
-              color: AppColors.waterGreen300, // Ícono con color waterGreen300
+            child: Center(
+              // Centra el ícono en el Container
+              child: Image.asset(
+                'assets/forward-arrow.png',
+                height: 24.0, // Ajusta el tamaño como sea necesario
+                width: 24.0, // Ajusta el tamaño como sea necesario
+              ),
             ),
           ),
         ),
       ),
+
       floatingActionButtonLocation: FloatingActionButtonLocation
           .endFloat, // Posiciona el FAB a la derecha
     );

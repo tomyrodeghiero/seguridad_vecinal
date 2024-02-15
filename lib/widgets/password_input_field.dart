@@ -35,21 +35,19 @@ class _PasswordFieldState extends State<PasswordField> {
           borderRadius: BorderRadius.circular(100.0),
         ),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: AppColors.waterGreen200, width: 2.0),
+          borderSide: BorderSide(color: AppColors.purple500, width: 2.0),
           borderRadius: BorderRadius.circular(100.0),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: AppColors.waterGreen200, width: 2.0),
+          borderSide: BorderSide(color: AppColors.purple500, width: 2.0),
           borderRadius: BorderRadius.circular(100.0),
         ),
         suffixIcon: IconButton(
-          icon: Icon(
-            _obscureText
-                ? Icons.visibility_off_outlined
-                : Icons.visibility_outlined,
-            color: AppColors
-                .waterGreen400, // Asegúrate de que este color esté definido en tu clase AppColors
-          ),
+          icon: _obscureText
+              ? Image.asset('assets/password-not-visible.png',
+                  height: 16.0) // Icono cuando la contraseña está oculta
+              : Image.asset('assets/password-visible.png',
+                  height: 15.0), // Icono cuando la contraseña está visible
           onPressed: () {
             setState(() {
               _obscureText = !_obscureText;

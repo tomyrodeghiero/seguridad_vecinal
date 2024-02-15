@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart'; // Importa flutter_svg
 import 'package:seguridad_vecinal/colors.dart';
 import 'dart:async';
 
@@ -22,33 +23,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.waterGreen300,
+      backgroundColor: AppColors.purple500,
       body: Center(
-        child: Container(
-          width: 160.0,
-          height: 160.0,
-          decoration: BoxDecoration(
-            color: Colors.transparent,
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.black,
-              width: 1.0,
-            ),
-          ),
-          child: Center(
-            child: Container(
-              width: 160.0,
-              height: 160.0,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.black,
-                  width: 1.0,
-                ),
-              ),
-            ),
-          ),
+        child: SvgPicture.asset(
+          'assets/cori-logotype.svg', // Ruta a tu archivo SVG
+          width: 120.0,
+          height: 120.0,
         ),
       ),
     );

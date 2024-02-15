@@ -43,14 +43,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   OnboardingContent(
                     title: 'Bienvenido Juan',
                     description:
-                        'App es una aplicación que te permitirá sentirte más seguro en tu ciudad',
+                        'Cori es una aplicación que te permitirá sentirte más seguro en tu ciudad',
                     currentPage: _currentPage,
                     numPages: _numPages,
                   ),
                   OnboardingContent(
                     title: '',
                     description:
-                        'Con App podrás enterarte de las noticias más importantes contadas por los ciudadanos',
+                        'Con Cori podrás enterarte de las noticias más importantes contadas por los ciudadanos',
                     currentPage: _currentPage,
                     numPages: _numPages,
                   ),
@@ -71,11 +71,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: _currentPage != _numPages - 1
                     ? FloatingActionButton(
                         elevation: 0,
-                        backgroundColor: AppColors.waterGreen400,
+                        backgroundColor: AppColors.purple500,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(30.0)),
                         ),
-                        child: Icon(Icons.arrow_forward, color: Colors.white),
+                        child: Container(
+                          width:
+                              56, // Tamaño estándar de un FloatingActionButton
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: AppColors.purple500, // Color de fondo blanco
+                            borderRadius: BorderRadius.circular(
+                                100), // BorderRadius de 100
+                          ),
+                          child: Center(
+                            // Centra el ícono en el Container
+                            child: Image.asset(
+                              'assets/forward-arrow.png',
+                              height: 24.0,
+                              width: 24.0,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                         onPressed: () {
                           _pageController.nextPage(
                             duration: Duration(milliseconds: 400),
@@ -85,11 +103,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       )
                     : FloatingActionButton(
                         elevation: 0,
-                        backgroundColor: AppColors.waterGreen400,
+                        backgroundColor: AppColors.purple500,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(30.0)),
                         ),
-                        child: Icon(Icons.check, color: Colors.white),
+                        child: Container(
+                          width:
+                              56, // Tamaño estándar de un FloatingActionButton
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: AppColors.purple500, // Color de fondo blanco
+                            borderRadius: BorderRadius.circular(
+                                100), // BorderRadius de 100
+                          ),
+                          child: Center(
+                            // Centra el ícono en el Container
+                            child: Image.asset(
+                              'assets/finish-icon.png',
+                              height: 24.0,
+                              width: 24.0,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
@@ -126,7 +162,7 @@ class OnboardingContent extends StatelessWidget {
       height: isCurrentPage ? 10.0 : 6.0,
       width: isCurrentPage ? 10.0 : 6.0,
       decoration: BoxDecoration(
-        color: isCurrentPage ? AppColors.waterGreen400 : Colors.grey[300],
+        color: isCurrentPage ? AppColors.purple500 : Colors.grey[300],
         borderRadius: BorderRadius.circular(5),
       ),
     );
