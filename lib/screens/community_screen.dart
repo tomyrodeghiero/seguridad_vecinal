@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/colors.dart';
+import 'package:seguridad_vecinal/components/custom_drawer.dart';
 import 'package:seguridad_vecinal/screens/community_detail_screen.dart';
 
 class Community {
   final String name;
   final int memberCount;
-  final IconData icon;
+  final String imagePath; // Nueva propiedad para la ruta de la imagen
 
-  Community(
-      {required this.name, required this.memberCount, this.icon = Icons.image});
+  Community({
+    required this.name,
+    required this.memberCount,
+    this.imagePath = '', // Valor predeterminado vacío o una imagen genérica
+  });
 }
 
 class CommunityScreen extends StatefulWidget {
@@ -18,51 +22,70 @@ class CommunityScreen extends StatefulWidget {
 
 class _CommunityScreenState extends State<CommunityScreen> {
   final List<Community> communities = [
-    Community(name: 'Banda Norte', memberCount: 22),
-    Community(name: 'Alberdi', memberCount: 17),
-    Community(name: 'IPV Banda Norte', memberCount: 10),
-    Community(name: 'Barrio Jardin', memberCount: 25),
+    Community(
+        name: 'Banda Norte',
+        memberCount: 22,
+        imagePath: 'assets/banda-norte.png'),
+    Community(
+        name: 'Alberdi', memberCount: 17, imagePath: 'assets/alberdi.png'),
+    Community(
+        name: 'IPV Banda Norte',
+        memberCount: 10,
+        imagePath: 'assets/bimaco.png'),
+    Community(
+        name: 'Barrio Jardin',
+        memberCount: 25,
+        imagePath: 'assets/micro-centro.png'),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Programar la apertura del drawer para el próximo frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Scaffold.of(context).openDrawer();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pushNamed(context, '/home'),
+          icon:
+              Icon(Icons.menu, color: Colors.black), // Cambiado a ícono de menú
+          onPressed: () => Scaffold.of(context).openDrawer(), // Abre el Drawer
         ),
         backgroundColor: Colors.white,
         title: Text(
           'Comunidades',
           style: TextStyle(
-            fontSize: 20.0,
-            color: AppColors.waterGreen400,
-            fontWeight: FontWeight.w700,
+            fontSize: 22.0,
+            color: AppColors.purple500,
+            fontWeight: FontWeight.w600,
           ),
         ),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.search,
-              color: Colors.black,
-              size: 28.0,
-            ),
+            icon: Image.asset(
+              'assets/search.png',
+              width: 24,
+              height: 24,
+            ), // Imagen personalizada para la búsqueda
             onPressed: () {},
           ),
         ],
         iconTheme: IconThemeData(color: Colors.black),
         elevation: 0,
       ),
+      drawer: const CustomDrawer(),
       body: ListView.separated(
-        itemCount: 4, // Adjust this number to match your number of communities
+        itemCount: communities.length, // Use communities list length
         itemBuilder: (context, index) {
-          // Access the community using the index
           Community community = communities[index];
 
           return InkWell(
             onTap: () {
-              // Navegar a la página de detalles de la comunidad
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -74,46 +97,40 @@ class _CommunityScreenState extends State<CommunityScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border(
-                  top: BorderSide(
-                      width: 1.0,
-                      color: Colors.grey), // Top border for each item
+                  top: BorderSide(width: 1.0, color: Colors.grey),
                 ),
               ),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment
+                      .start, // Align children to the start of cross axis
                   children: [
                     Container(
-                      width: 150.0,
-                      height: 150.0,
-                      decoration: BoxDecoration(
-                          color: Colors.white, // Background color for the image
-                          borderRadius: BorderRadius.circular(20.0),
-                          border: Border.all(color: Colors.grey)),
-                      child: Icon(
-                        Icons.image, // Replace with the community image
-                        size: 60.0, // Increased size for the icon
-                        color: Colors.grey[600],
-                      ),
-                    ),
+                        width: 150.0,
+                        height: 150.0,
+                        child: Image.asset(
+                          community.imagePath,
+                          fit: BoxFit.cover,
+                        )),
                     Expanded(
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.0),
                         child: Column(
-                          mainAxisAlignment:
-                              MainAxisAlignment.start, // Changed alignment here
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment
+                              .start, // Align column contents to the start of main axis
                           children: [
                             Text(
-                              community.name, // Real community name
+                              community.name,
                               style: TextStyle(
-                                color: AppColors.waterGreen400,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18.0,
+                                color: AppColors.purple500,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 24.0,
                               ),
                             ),
                             Text(
-                              '${community.memberCount} members', // Real member count
+                              '${community.memberCount} miembros', // Changed 'members' to 'miembros'
                               style: TextStyle(
                                 color: Colors.grey[800],
                                 fontSize: 16.0,

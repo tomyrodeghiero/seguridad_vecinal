@@ -38,26 +38,34 @@ class NotificationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.waterGreen400,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text('Notificaciones',
                 style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500)),
+                    fontSize: 22.0,
+                    color: AppColors.purple500,
+                    fontWeight: FontWeight.w600)),
           ],
         ),
         centerTitle: false,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Image.asset(
+            'assets/back-arrow-colored.png',
+            height: 24.0,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.notifications, color: Colors.white, size: 28.0),
-            onPressed: () {},
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: IconButton(
+              icon: Image.asset(
+                'assets/notifications.png',
+                height: 24.0,
+              ),
+              onPressed: () {},
+            ),
           ),
         ],
       ),
@@ -82,13 +90,23 @@ class NotificationsScreen extends StatelessWidget {
       title: Text(
         notification.title ?? 'Sin título',
         style: TextStyle(
-            color: AppColors.waterGreen400, fontWeight: FontWeight.w500),
+            color: AppColors.purple500,
+            fontWeight: FontWeight.w600,
+            fontSize: 22.0),
       ),
       subtitle: Text(
         notification.subtitle ?? 'No hay descripción.',
-        style: TextStyle(color: Colors.grey),
+        style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w400,
+            fontSize: 16.0,
+            height: 1.25),
       ),
-      trailing: Icon(Icons.chevron_right, color: AppColors.waterGreen400),
+      trailing: Image.asset(
+        'assets/next-arrow-colored.png', // Asegúrate de que este path sea correcto
+        height:
+            24, // Ajusta la altura para alinearla con el título según sea necesario
+      ),
       onTap: () {
         Navigator.push(
           context,

@@ -72,6 +72,38 @@ flutter:
     - assets/back-arrow.png
     - assets/forward-arrow.png
     - assets/finish-icon.png
+    - assets/notifications.png
+    - assets/avatar-01.png
+    - assets/avatar-02.png
+    - assets/avatar-03.png
+    - assets/image-01.png
+    - assets/image-02.png
+    - assets/cori.png
+    - assets/marker.png
+    - assets/location-pin.png
+    - assets/community.png
+    - assets/home.png
+    - assets/location-pin-selected.png
+    - assets/community-selected.png
+    - assets/home-selected.png
+    - assets/search.png
+    - assets/banda-norte.png
+    - assets/banda-norte-rounded.png
+    - assets/alberdi.png
+    - assets/bimaco.png
+    - assets/micro-centro.png
+    - assets/note.png
+    - assets/back-arrow-colored.png
+    - assets/next-arrow.png
+    - assets/next-arrow-colored.png
+    - assets/play.png
+    - assets/bg-drawer.png
+    - assets/privacy.png
+    - assets/settings.png
+    - assets/help-center.png
+    - assets/hearth.png
+    - assets/statistics.png
+    - assets/add.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

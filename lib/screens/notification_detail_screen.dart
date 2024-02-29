@@ -11,22 +11,36 @@ class NotificationDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.waterGreen400,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text('Notificaciones',
                 style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500)),
+                    fontSize: 22.0,
+                    color: AppColors.purple500,
+                    fontWeight: FontWeight.w600)),
           ],
         ),
         centerTitle: false,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Image.asset(
+            'assets/back-arrow-colored.png',
+            height: 24.0,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: IconButton(
+              icon: Image.asset(
+                'assets/notifications.png',
+                height: 24.0,
+              ),
+              onPressed: () {},
+            ),
+          ),
+        ],
       ),
       body: Container(
         color: Colors.white,
@@ -38,8 +52,8 @@ class NotificationDetailScreen extends StatelessWidget {
               notification.title ?? 'Sin título',
               style: TextStyle(
                 fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-                color: AppColors.waterGreen400,
+                fontWeight: FontWeight.w500,
+                color: AppColors.purple500,
               ),
             ),
             SizedBox(height: 4.0),
@@ -47,7 +61,8 @@ class NotificationDetailScreen extends StatelessWidget {
               notification.subtitle ?? 'Sin descripción.',
               style: TextStyle(
                 fontSize: 16.0,
-                color: Colors.grey,
+                color: Colors.black,
+                height: 1.25,
               ),
             ),
             SizedBox(height: 20.0),
@@ -57,7 +72,7 @@ class NotificationDetailScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 border: Border.all(
-                  color: AppColors.waterGreen400,
+                  color: AppColors.purple500,
                   width: 1.0,
                 ),
                 borderRadius: BorderRadius.circular(12.0),
@@ -75,19 +90,27 @@ class NotificationDetailScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon:
-                        Icon(Icons.play_arrow, color: AppColors.waterGreen400),
+                    icon: Image.asset(
+                      'assets/play.png',
+                      height: 24.0,
+                    ),
                     onPressed: () {},
                   ),
                   Row(
                     children: List.generate(
-                        15,
+                        14,
                         (index) => Icon(Icons.more_vert,
-                            size: 15, color: AppColors.waterGreen400)),
+                            size: 15, color: AppColors.purple500)),
                   ),
-                  Text(
-                    '0:20',
-                    style: TextStyle(color: Colors.black),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Text(
+                      '0:20',
+                      style: TextStyle(
+                          color: AppColors.purple500,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 18.0),
+                    ),
                   ),
                 ],
               ),
@@ -133,11 +156,11 @@ class NotificationDetailScreen extends StatelessWidget {
             'Eliminar',
             style: TextStyle(
               fontWeight: FontWeight.w500,
-              fontSize: 18,
+              fontSize: 20.0,
             ),
           ),
           elevation: 0,
-          backgroundColor: AppColors.waterGreen400,
+          backgroundColor: AppColors.purple500,
           foregroundColor: Colors.white,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),

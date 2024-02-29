@@ -31,24 +31,46 @@ class _MainScreenState extends State<MainScreen> {
         index: _selectedIndex,
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+                color: Colors.black, width: 1.0), // Borde superior negro
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.location_pin),
-            label: 'Map',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.language),
-            label: 'Community',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: AppColors.waterGreen400,
-        onTap: _onItemTapped,
+        ),
+        child: BottomNavigationBar(
+          items: <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: _selectedIndex == 0
+                  ? Image.asset('assets/home-selected.png',
+                      width: 28, height: 28)
+                  : Image.asset('assets/home.png', width: 28, height: 28),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: _selectedIndex == 1
+                  ? Image.asset('assets/location-pin-selected.png',
+                      width: 28, height: 28)
+                  : Image.asset('assets/location-pin.png',
+                      width: 28, height: 28),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: _selectedIndex == 2
+                  ? Image.asset('assets/community-selected.png',
+                      width: 28, height: 28)
+                  : Image.asset('assets/community.png', width: 28, height: 28),
+              label: '',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: AppColors.waterGreen400,
+          showSelectedLabels:
+              false, // No muestra la etiqueta de la opción seleccionada
+          showUnselectedLabels:
+              false, // No muestra la etiqueta de las opciones no seleccionadas
+          onTap: _onItemTapped,
+        ),
       ),
     );
   }

@@ -1,10 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/colors.dart';
+import 'package:seguridad_vecinal/components/custom_drawer.dart';
 import 'package:seguridad_vecinal/screens/community_post_screen.dart';
 import 'package:seguridad_vecinal/screens/notifications_screen.dart';
-import 'package:seguridad_vecinal/screens/profile_screen.dart';
 
 class CommunityDetailScreen extends StatelessWidget {
+  String getAvatarAsset(int index) {
+    switch (index) {
+      case 0:
+        return 'assets/avatar-01.png';
+      case 1:
+        return 'assets/avatar-02.png';
+      case 2:
+        return 'assets/avatar-03.png';
+      default:
+        return 'assets/avatar-01.png'; // Imagen por defecto
+    }
+  }
+
+  String getImageAsset(int index) {
+    // Esta función es para obtener la imagen correspondiente
+    switch (index) {
+      case 1: // Suponiendo que el índice 1 tiene imagen
+        return 'assets/image-01.png';
+      case 2: // Suponiendo que el índice 2 tiene imagen
+        return 'assets/image-02.png';
+      default:
+        return ''; // Devuelve una cadena vacía si no hay imagen
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,118 +37,14 @@ class CommunityDetailScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         centerTitle: false,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-            size: 28.0,
+          icon: Image.asset(
+            'assets/back-arrow.png',
+            height: 24.0,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.notifications, color: Colors.white, size: 28.0),
-            onPressed: () {},
-          ),
-        ],
       ),
-      drawer: Drawer(
-        backgroundColor: AppColors.waterGreen400,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 50.0),
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.zero,
-                  children: <Widget>[
-                    Container(
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              child: CircleAvatar(
-                                backgroundColor: Colors.grey,
-                                radius: 40,
-                                child: Text('L',
-                                    style: TextStyle(
-                                        fontSize: 40.0, color: Colors.white)),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 12.0,
-                            ),
-                            Text(
-                              'Luciana',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              'González',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => ProfileScreen()),
-                                );
-                              },
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  Text('Editar perfil',
-                                      style: TextStyle(color: Colors.white)),
-                                  SizedBox(width: 8),
-                                  Icon(Icons.edit, color: Colors.white),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      padding: EdgeInsets.all(16),
-                    ),
-                  ],
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    ListTile(
-                      leading: Icon(Icons.lock_outline, color: Colors.white),
-                      title: Text('Privacidad',
-                          style: TextStyle(color: Colors.white)),
-                      onTap: () {},
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.settings, color: Colors.white),
-                      title: Text('Configuración',
-                          style: TextStyle(color: Colors.white)),
-                      onTap: () {},
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.help_outline, color: Colors.white),
-                      title: Text('Centro de ayuda',
-                          style: TextStyle(color: Colors.white)),
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      drawer: CustomDrawer(),
       body: Container(
         color: Colors.white,
         child: Column(
@@ -138,20 +59,13 @@ class CommunityDetailScreen extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    padding: EdgeInsets.all(
-                        2), // Ajusta el padding para el tamaño del borde
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.grey, // Color del borde
-                        width: 1, // Ancho del borde
-                      ),
-                    ),
                     height: 100.0,
                     width: 100.0,
                     child: CircleAvatar(
                       backgroundColor: Colors.white,
                       radius: 30,
+                      backgroundImage: AssetImage(
+                          'assets/banda-norte-rounded.png'), // Usa AssetImage para cargar la imagen
                     ),
                   ),
                   SizedBox(width: 16),
@@ -162,19 +76,20 @@ class CommunityDetailScreen extends StatelessWidget {
                         Text(
                           'Banda Norte', // Nombre de la comunidad
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22.0,
-                          ),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 24.0,
+                              color: AppColors.purple500),
                         ),
                         Text(
                           '22 miembros', // Cantidad de miembros
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
                             fontSize: 16.0,
-                            color: Colors.grey[600],
+                            color: Colors.black,
                           ),
                         ),
                         Container(
+                          margin: EdgeInsets.only(top: 8.0),
                           height: 28.0,
                           child: FloatingActionButton.extended(
                             onPressed: () {},
@@ -182,11 +97,12 @@ class CommunityDetailScreen extends StatelessWidget {
                               'Unirme'.toUpperCase(),
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
-                                fontSize: 14.0,
+                                fontSize: 16.0,
+                                color: Colors.white,
                               ),
                             ),
                             elevation: 0,
-                            backgroundColor: AppColors.waterGreen400,
+                            backgroundColor: AppColors.purple500,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50.0)),
@@ -203,11 +119,12 @@ class CommunityDetailScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(width: 1.0, color: Colors.grey),
+                  bottom: BorderSide(width: 1.0, color: Colors.grey),
                 ),
               ),
               padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
               child: Text(
-                'Noticias',
+                'Noticias de Río Cuarto',
                 style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.w500,
@@ -220,52 +137,24 @@ class CommunityDetailScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   String newsTitle;
                   String newsSubtitle;
-                  bool hasImage;
+                  String imageAsset = getImageAsset(index);
+                  bool hasImage = imageAsset.isNotEmpty;
                   if (index == 0) {
                     newsTitle = 'Juan Perez';
                     newsSubtitle =
                         'Apuñalaron a un menor en el parque Sarmiento para robarle el télefono. El chico fue llevado al hospital en grave estado.';
-                    hasImage = false;
                   } else if (index == 1) {
                     newsTitle = 'Tobias Gonzales';
                     newsSubtitle =
                         'Entraron a robar un negocio en la calle Sobremonte. Rompieron todos los vidrios para poder ingresar. Cortaron la calle.';
-                    hasImage = true;
                   } else {
                     newsTitle = 'Ariel Molina';
                     newsSubtitle =
                         'Muere Marta Perez, la señora que había sido internada después que la tiraron de la moto para robarle.';
-                    hasImage = true;
                   }
-
-                  Widget leadingWidget = Container(
-                    width: 35,
-                    height: 35,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.black),
-                    ),
-                  );
-                  Widget imageWidget = hasImage
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 48.0),
-                          child: Container(
-                            height: 155,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(40),
-                              border: Border.all(color: Colors.black),
-                            ),
-                            margin:
-                                const EdgeInsets.only(top: 8.0, bottom: 16.0),
-                          ),
-                        )
-                      : SizedBox();
 
                   return InkWell(
                     onTap: () {
-                      // Navegar a CommunityPostScreen cuando se toque el ListTile
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -274,32 +163,100 @@ class CommunityDetailScreen extends StatelessWidget {
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        border: Border(
-                          top: BorderSide(width: 1.0, color: Colors.grey),
+                          border: index > 0
+                              ? Border(
+                                  top: BorderSide(
+                                      width: 1.0,
+                                      color: Colors
+                                          .grey), // Solo el primer elemento tendrá borde superior
+                                ) // No aplica ningún borde si el índice es mayor que 0
+                              : null),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CircleAvatar(
+                                  backgroundImage: AssetImage(getAvatarAsset(
+                                      index)), // Usa la función para obtener el avatar
+                                  radius: 18,
+                                ),
+                                SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        newsTitle,
+                                        style: TextStyle(
+                                          color: AppColors.purple500,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 18.0,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        newsSubtitle,
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.w400,
+                                          height: 1.25,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (hasImage)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 48.0,
+                                    top: 8.0,
+                                    right:
+                                        16.0), // Agrega padding a la derecha también
+                                child: FractionallySizedBox(
+                                  widthFactor:
+                                      1.0, // El ancho de la imagen será el 90% del ancho del contenedor
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(
+                                        40.0), // Borde redondeado
+                                    child: Image.asset(
+                                      imageAsset,
+                                      fit: BoxFit.cover,
+                                      height:
+                                          160.0, // Altura fija para la imagen
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 48.0, top: 12.0),
+                              child: Row(
+                                children: [
+                                  Image.asset('assets/cori.png',
+                                      width: 20, height: 20),
+                                  SizedBox(width: 8),
+                                  Text('209',
+                                      style: TextStyle(color: Colors.black)),
+                                  SizedBox(width: 16),
+                                  Image.asset('assets/marker.png',
+                                      width: 20, height: 20),
+                                  SizedBox(width: 8),
+                                  Text('107',
+                                      style: TextStyle(color: Colors.black)),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            leading: leadingWidget,
-                            title: Text(
-                              newsTitle,
-                              style: TextStyle(
-                                  color: AppColors.waterGreen400,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 18.0),
-                            ),
-                            subtitle: Text(
-                              newsSubtitle,
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 15.0,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                          imageWidget,
-                        ],
                       ),
                     ),
                   );
@@ -310,6 +267,7 @@ class CommunityDetailScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        elevation: 0,
         onPressed: () {
           Navigator.push(
             context,
@@ -319,8 +277,11 @@ class CommunityDetailScreen extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(30.0)),
         ),
-        child: Icon(Icons.notifications, color: Colors.white),
-        backgroundColor: AppColors.waterGreen400,
+        child: Image.asset(
+          'assets/note.png',
+          height: 26.0,
+        ),
+        backgroundColor: AppColors.purple500,
       ),
     );
   }

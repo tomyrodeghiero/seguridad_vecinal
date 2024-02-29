@@ -9,26 +9,24 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text('Tu perfil', style: TextStyle(color: Colors.black)),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text('Tu Perfil',
+                style: TextStyle(
+                    fontSize: 22.0,
+                    color: AppColors.purple500,
+                    fontWeight: FontWeight.w600)),
+          ],
         ),
-        leading: Container(
-          margin: EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.waterGreen400,
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ),
-        leadingWidth: 56,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        titleSpacing: 0,
         centerTitle: false,
+        leading: IconButton(
+          icon: Image.asset(
+            'assets/back-arrow.png',
+            height: 24.0,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       drawer: Drawer(
         backgroundColor: AppColors.waterGreen400,
@@ -48,10 +46,14 @@ class ProfileScreen extends StatelessWidget {
                           children: [
                             CircleAvatar(
                               backgroundColor: Colors.grey,
-                              radius: 40,
-                              child: Text('L',
-                                  style: TextStyle(
-                                      fontSize: 40.0, color: Colors.white)),
+                              radius: 50.0, // Tamaño aumentado
+                              child: Text(
+                                'L',
+                                style: TextStyle(
+                                    fontSize:
+                                        60.0, // También puedes ajustar el tamaño de la fuente si lo deseas
+                                    color: Colors.white),
+                              ),
                             ),
                             SizedBox(
                               height: 12.0,
@@ -147,20 +149,50 @@ class ProfileScreen extends StatelessWidget {
                     backgroundColor: Colors.white,
                     child: Stack(
                       children: <Widget>[
-                        Align(
-                          alignment: Alignment.bottomRight,
+                        Container(
+                          width:
+                              120, // Ajusta el tamaño del contenedor para el efecto de sombra
+                          height: 120,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.purple500.withOpacity(0.2),
+                                spreadRadius: 2,
+                                blurRadius: 4,
+                                offset: Offset(
+                                    0, 2), // Cambios de posición de la sombra
+                              ),
+                            ],
+                            border: Border.all(
+                              color: AppColors.purple500, // Color del borde
+                              width: 1.5, // Grosor del borde
+                            ),
+                          ),
+                        ),
+                        CircleAvatar(
+                          radius: 50, // Tamaño del CircleAvatar
+                          backgroundColor: Colors.white,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
                           child: Container(
                             decoration: BoxDecoration(
+                              shape: BoxShape.circle,
                               color: Colors.white,
                               border: Border.all(
-                                color: Colors.black,
+                                color: AppColors.purple500,
+                                width: 1.5,
                               ),
-                              borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Icon(
-                              Icons.add,
-                              color: Colors.black,
-                              size: 24,
+                            child: Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Image.asset(
+                                'assets/add.png',
+                                width: 16.0,
+                                height: 16.0,
+                              ),
                             ),
                           ),
                         ),
@@ -174,60 +206,90 @@ class ProfileScreen extends StatelessWidget {
             Text(
               'Luciana González',
               style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 24.0,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black),
+                  color: AppColors.purple500),
             ),
-            SizedBox(height: 30),
-            Text('Ciudad de Río Cuarto, Córdoba.',
-                style: TextStyle(color: Colors.black, fontSize: 16.0)),
-            Text('Miembro desde Diciembre 2023.',
-                style: TextStyle(color: Colors.black, fontSize: 16.0)),
-            SizedBox(height: 32.0),
+            SizedBox(height: 28.0),
+            Text(
+              'Ciudad de Río Cuarto, Córdoba.\nMiembro desde Diciembre 2023.',
+              style: TextStyle(color: Colors.black, fontSize: 18.0),
+              textAlign: TextAlign
+                  .center, // Opcional: Alinea el texto al centro si lo prefieres
+            ),
+            SizedBox(height: 28.0),
             Container(
               height: 1.0,
               color: Colors.grey,
             ),
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-              child: Center(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: AppColors.waterGreen400,
-                    onPrimary: Colors.white,
-                    padding:
-                        EdgeInsets.symmetric(vertical: 8.0, horizontal: 32.0),
-                  ),
-                  onPressed: () {},
-                  child: Text(
-                    'Reportes',
-                    style: TextStyle(
-                      fontSize: 18.0,
+                padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: Image.asset('assets/statistics.png',
+                            width: 20), // Icono para Reportes
+                        label: Text(
+                          'Reportes',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          primary: AppColors
+                              .purple500, // Color del botón de Reportes
+                          onPrimary: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18.0),
+                          ),
+                        ),
+                        onPressed: () {},
+                      ),
                     ),
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              height: 1.0,
-              color: AppColors.waterGreen400,
-            ),
+                    SizedBox(width: 16), // Espaciador entre los botones
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: Image.asset('assets/hearth.png',
+                            width: 20), // Icono para Favoritos
+                        label: Text(
+                          'Favoritos',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          primary: AppColors
+                              .purple500, // Color del botón de Favoritos
+                          onPrimary: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18.0),
+                          ),
+                        ),
+                        onPressed: () {},
+                      ),
+                    ),
+                  ],
+                )),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0, vertical: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: GridView.count(
                   crossAxisCount: 2,
                   childAspectRatio: 0.7,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  children: List.generate(2, (index) {
+                  children: List.generate(4, (index) {
+                    // Genera 4 para tener dos en cada columna
                     return Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.black),
-                        borderRadius: BorderRadius.circular(32),
-                      ),
+                          color: Colors.grey
+                              .shade300, // Color de fondo de los contenedores
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.purple500)),
+                      // Añade el contenido de cada contenedor aquí
                       child: Center(),
                     );
                   }),
