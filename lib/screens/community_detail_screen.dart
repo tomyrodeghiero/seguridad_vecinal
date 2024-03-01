@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:seguridad_vecinal/colors.dart';
 import 'package:seguridad_vecinal/components/custom_drawer.dart';
 import 'package:seguridad_vecinal/screens/community_post_screen.dart';
-import 'package:seguridad_vecinal/screens/notifications_screen.dart';
+import 'package:seguridad_vecinal/screens/post_screen.dart';
 
 class CommunityDetailScreen extends StatelessWidget {
   String getAvatarAsset(int index) {
@@ -14,19 +14,18 @@ class CommunityDetailScreen extends StatelessWidget {
       case 2:
         return 'assets/avatar-03.png';
       default:
-        return 'assets/avatar-01.png'; // Imagen por defecto
+        return 'assets/avatar-01.png';
     }
   }
 
   String getImageAsset(int index) {
-    // Esta función es para obtener la imagen correspondiente
     switch (index) {
-      case 1: // Suponiendo que el índice 1 tiene imagen
+      case 1:
         return 'assets/image-01.png';
-      case 2: // Suponiendo que el índice 2 tiene imagen
+      case 2:
         return 'assets/image-02.png';
       default:
-        return ''; // Devuelve una cadena vacía si no hay imagen
+        return '';
     }
   }
 
@@ -74,14 +73,14 @@ class CommunityDetailScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Banda Norte', // Nombre de la comunidad
+                          'Banda Norte',
                           style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 24.0,
                               color: AppColors.purple500),
                         ),
                         Text(
-                          '22 miembros', // Cantidad de miembros
+                          '22 miembros',
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
                             fontSize: 16.0,
@@ -166,9 +165,7 @@ class CommunityDetailScreen extends StatelessWidget {
                           border: index > 0
                               ? Border(
                                   top: BorderSide(
-                                      width: 1.0,
-                                      color: Colors
-                                          .grey), // Solo el primer elemento tendrá borde superior
+                                      width: 1.0, color: Colors.grey),
                                 ) // No aplica ningún borde si el índice es mayor que 0
                               : null),
                       child: Padding(
@@ -181,8 +178,8 @@ class CommunityDetailScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 CircleAvatar(
-                                  backgroundImage: AssetImage(getAvatarAsset(
-                                      index)), // Usa la función para obtener el avatar
+                                  backgroundImage:
+                                      AssetImage(getAvatarAsset(index)),
                                   radius: 18,
                                 ),
                                 SizedBox(width: 16),
@@ -217,21 +214,15 @@ class CommunityDetailScreen extends StatelessWidget {
                             if (hasImage)
                               Padding(
                                 padding: const EdgeInsets.only(
-                                    left: 48.0,
-                                    top: 8.0,
-                                    right:
-                                        16.0), // Agrega padding a la derecha también
+                                    left: 48.0, top: 8.0, right: 16.0),
                                 child: FractionallySizedBox(
-                                  widthFactor:
-                                      1.0, // El ancho de la imagen será el 90% del ancho del contenedor
+                                  widthFactor: 1.0,
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(
-                                        40.0), // Borde redondeado
+                                    borderRadius: BorderRadius.circular(40.0),
                                     child: Image.asset(
                                       imageAsset,
                                       fit: BoxFit.cover,
-                                      height:
-                                          160.0, // Altura fija para la imagen
+                                      height: 160.0,
                                     ),
                                   ),
                                 ),
@@ -271,7 +262,7 @@ class CommunityDetailScreen extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => NotificationsScreen()),
+            MaterialPageRoute(builder: (context) => PostScreen()),
           );
         },
         shape: RoundedRectangleBorder(

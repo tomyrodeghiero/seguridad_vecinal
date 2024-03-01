@@ -104,6 +104,14 @@ flutter:
     - assets/hearth.png
     - assets/statistics.png
     - assets/add.png
+    - assets/police-station-pin.png
+    - assets/health-pin.png
+    - assets/camera.png
+    - assets/bg-camera.png
+    - assets/cancel.png
+    - assets/onboarding-01.png
+    - assets/onboarding-02.png
+    - assets/onboarding-03.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

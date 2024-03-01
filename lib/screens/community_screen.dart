@@ -126,7 +126,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                               style: TextStyle(
                                 color: AppColors.purple500,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 24.0,
+                                fontSize: 22.0,
                               ),
                             ),
                             Text(

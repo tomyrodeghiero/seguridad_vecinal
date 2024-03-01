@@ -5,7 +5,6 @@ class AppColors {
   static const Color waterGreen200 = Color(0xFF6ee7e4);
   static const Color waterGreen300 = Color(0xFF00e2df);
   static const Color waterGreen400 = Color(0xFF3acbc8);
-
-  // Añadido nuevo color
+  static const Color turquoiseBlue500 = Color(0xFF1AB8B9);
   static const Color purple500 = Color(0xFFA363F8);
 }

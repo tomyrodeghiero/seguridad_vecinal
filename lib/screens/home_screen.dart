@@ -3,6 +3,7 @@ import 'package:seguridad_vecinal/colors.dart';
 import 'package:seguridad_vecinal/components/custom_drawer.dart';
 import 'package:seguridad_vecinal/screens/community_post_screen.dart';
 import 'package:seguridad_vecinal/screens/notifications_screen.dart';
+import 'package:seguridad_vecinal/screens/post_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   String getAvatarAsset(int index) {
@@ -14,19 +15,18 @@ class HomeScreen extends StatelessWidget {
       case 2:
         return 'assets/avatar-03.png';
       default:
-        return 'assets/avatar-01.png'; // Imagen por defecto
+        return 'assets/avatar-01.png';
     }
   }
 
   String getImageAsset(int index) {
-    // Esta función es para obtener la imagen correspondiente
     switch (index) {
-      case 1: // Suponiendo que el índice 1 tiene imagen
+      case 1:
         return 'assets/image-01.png';
-      case 2: // Suponiendo que el índice 2 tiene imagen
+      case 2:
         return 'assets/image-02.png';
       default:
-        return ''; // Devuelve una cadena vacía si no hay imagen
+        return '';
     }
   }
 
@@ -50,9 +50,23 @@ class HomeScreen extends StatelessWidget {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Image.asset('assets/cori.png', width: 32, height: 32),
+            Image.asset('assets/cori.png', width: 32.0, height: 32.0),
           ],
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: Image.asset('assets/notifications.png',
+                width: 24.0, height: 24.0),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NotificationsScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       drawer: CustomDrawer(),
       body: Container(
@@ -163,21 +177,15 @@ class HomeScreen extends StatelessWidget {
                             if (hasImage)
                               Padding(
                                 padding: const EdgeInsets.only(
-                                    left: 48.0,
-                                    top: 8.0,
-                                    right:
-                                        16.0), // Agrega padding a la derecha también
+                                    left: 48.0, top: 8.0, right: 16.0),
                                 child: FractionallySizedBox(
-                                  widthFactor:
-                                      1.0, // El ancho de la imagen será el 90% del ancho del contenedor
+                                  widthFactor: 1.0,
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(
-                                        40.0), // Borde redondeado
+                                    borderRadius: BorderRadius.circular(40.0),
                                     child: Image.asset(
                                       imageAsset,
                                       fit: BoxFit.cover,
-                                      height:
-                                          160.0, // Altura fija para la imagen
+                                      height: 160.0,
                                     ),
                                   ),
                                 ),
@@ -217,7 +225,7 @@ class HomeScreen extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => NotificationsScreen()),
+            MaterialPageRoute(builder: (context) => PostScreen()),
           );
         },
         shape: RoundedRectangleBorder(

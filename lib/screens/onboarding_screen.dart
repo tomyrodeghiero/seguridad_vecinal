@@ -159,11 +159,11 @@ class OnboardingContent extends StatelessWidget {
   Widget _buildPageIndicator(bool isCurrentPage) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 2.0),
-      height: isCurrentPage ? 10.0 : 6.0,
-      width: isCurrentPage ? 10.0 : 6.0,
+      height: isCurrentPage ? 14.0 : 7.0,
+      width: isCurrentPage ? 14.0 : 7.0,
       decoration: BoxDecoration(
         color: isCurrentPage ? AppColors.purple500 : Colors.grey[300],
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(100.0),
       ),
     );
   }
