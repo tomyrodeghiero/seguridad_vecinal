@@ -1,10 +1,72 @@
 import 'package:flutter/material.dart';
-import 'package:seguridad_vecinal/colors.dart'; // Asegúrate de tener este archivo con la definición de los colores
-import 'package:seguridad_vecinal/widgets/password_input_field.dart'; // Asegúrate de que este widget esté definido
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:seguridad_vecinal/colors.dart';
+import 'package:seguridad_vecinal/widgets/password_input_field.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
+  @override
+  _RegisterScreenState createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  TextEditingController _passwordController = TextEditingController();
+  TextEditingController _confirmPasswordController = TextEditingController();
+  bool _hasAcceptedTerms = false;
+
   @override
   Widget build(BuildContext context) {
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+
+    final email = args?['email'] ?? 'No se proporcionó correo electrónico';
+
+    void _attemptRegistration() {
+      if (_passwordController.text.isEmpty ||
+          _confirmPasswordController.text.isEmpty) {
+        Fluttertoast.showToast(
+            msg: "⚠️ Por favor, complete todos los campos de contraseña");
+        return;
+      }
+
+      if (_passwordController.text != _confirmPasswordController.text) {
+        Fluttertoast.showToast(msg: "Las contraseñas no coinciden");
+        return;
+      }
+
+      String pattern = r'^(?=.*[0-9]).{6,}$';
+      RegExp regex = RegExp(pattern);
+      if (!regex.hasMatch(_passwordController.text)) {
+        Fluttertoast.showToast(
+            msg:
+                "La contraseña debe tener al menos 6 caracteres y contener al menos un número");
+        return;
+      }
+
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+      final email = args?['email'] ?? '';
+      if (_passwordController.text == email) {
+        Fluttertoast.showToast(
+            msg: "La contraseña no debe ser idéntica al correo electrónico");
+        return;
+      }
+
+      if (!_hasAcceptedTerms) {
+        Fluttertoast.showToast(msg: "Debe aceptar los términos y condiciones");
+        return;
+      }
+
+      final Map<String, String> registrationData = {
+        'email': email,
+        'password': _passwordController.text,
+      };
+
+      Navigator.of(context).pushNamed(
+        '/personalInfoScreen',
+        arguments: registrationData,
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.purple500,
       appBar: AppBar(
@@ -44,14 +106,12 @@ class RegisterScreen extends StatelessWidget {
                 ),
               ),
               TextFormField(
+                initialValue: email,
+                readOnly: true,
+                enabled: false,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
-                  labelText: 'Ingresa tu mail',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  floatingLabelBehavior: FloatingLabelBehavior
-                      .never, // Previene que el label flote
-                  hintText:
-                      'Ingresa tu mail', // Muestra el texto del label como placeholder
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
                   filled: true,
@@ -88,13 +148,16 @@ class RegisterScreen extends StatelessWidget {
                       fontWeight: FontWeight.w400),
                 ),
               ),
-              PasswordField(isLabelFloating: false),
+              PasswordField(
+                controller: _passwordController,
+                isLabelFloating: false,
+              ),
               SizedBox(height: 16.0),
               Text(
                 '*Debe contener mínimo 6 caracteres, un carácter numérico y no debe ser idéntico al nombre de usuario',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 14.0,
+                  fontSize: 16.0,
                 ),
               ),
               SizedBox(height: 32.0),
@@ -109,12 +172,15 @@ class RegisterScreen extends StatelessWidget {
                       fontWeight: FontWeight.w400),
                 ),
               ),
-              PasswordField(isLabelFloating: false),
+              PasswordField(
+                controller: _confirmPasswordController,
+                isLabelFloating: false,
+              ),
               SizedBox(height: 48.0),
               RichText(
                 textAlign: TextAlign.left,
                 text: TextSpan(
-                  style: TextStyle(color: Colors.white, fontSize: 16.0),
+                  style: TextStyle(color: Colors.white, fontSize: 18.0),
                   children: <TextSpan>[
                     TextSpan(
                         text:
@@ -128,20 +194,27 @@ class RegisterScreen extends StatelessWidget {
                 child: ElevatedButton(
                   child: Text(
                     'Aceptar',
-                    style:
-                        TextStyle(color: AppColors.purple500, fontSize: 16.0),
+                    style: TextStyle(
+                      color: _hasAcceptedTerms
+                          ? Colors.white
+                          : AppColors.purple500,
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   onPressed: () {
-                    // Aquí manejarías el registro
+                    setState(() {
+                      _hasAcceptedTerms = !_hasAcceptedTerms;
+                    });
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.white, // Fondo blanco
-                    onPrimary: AppColors
-                        .waterGreen300, // Color de la letra cuando se presiona el botón
-                    elevation: 0, // No sombra
+                    primary: _hasAcceptedTerms ? Colors.green : Colors.white,
+                    onPrimary: _hasAcceptedTerms
+                        ? AppColors.purple500
+                        : AppColors.waterGreen300,
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(100.0), // Borde redondeado
+                      borderRadius: BorderRadius.circular(100.0),
                     ),
                   ),
                 ),
@@ -153,31 +226,25 @@ class RegisterScreen extends StatelessWidget {
       floatingActionButton: Align(
         alignment: Alignment.bottomRight,
         child: InkWell(
-          onTap: () {
-            Navigator.of(context).pushNamed(
-                '/personalInfoScreen'); // Navega a la pantalla de información personal
-          },
+          onTap: _attemptRegistration,
           child: Container(
-            width: 56, // Tamaño estándar de un FloatingActionButton
+            width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: Colors.white, // Color de fondo blanco
-              borderRadius: BorderRadius.circular(100), // BorderRadius de 100
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(100),
             ),
             child: Center(
-              // Centra el ícono en el Container
               child: Image.asset(
                 'assets/forward-arrow.png',
-                height: 24.0, // Ajusta el tamaño como sea necesario
-                width: 24.0, // Ajusta el tamaño como sea necesario
+                height: 24.0,
+                width: 24.0,
               ),
             ),
           ),
         ),
       ),
-
-      floatingActionButtonLocation: FloatingActionButtonLocation
-          .endFloat, // Posiciona el FAB a la derecha
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

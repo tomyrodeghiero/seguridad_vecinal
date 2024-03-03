@@ -80,20 +80,24 @@ class LoginScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 try {
-                  // Intenta iniciar sesión con Google y obtén el resultado
                   final userCredential = await AuthService().signInWithGoogle();
-
-                  // Si el inicio de sesión es exitoso y el usuario no es nulo, redirige
                   if (userCredential.user != null) {
-                    Navigator.pushReplacementNamed(context, '/register');
+                    // Crear un objeto de argumentos para pasar
+                    final args = {
+                      'email': userCredential.user!.email,
+                    };
+
+                    // Navegar y pasar los argumentos
+                    Navigator.pushReplacementNamed(
+                      context,
+                      '/register',
+                      arguments: args,
+                    );
                   } else {
-                    // Maneja el caso donde el usuario es nulo
-                    // Por ejemplo, mostrar un mensaje de error
                     print(
                         'Inicio de sesión fallido o cancelado por el usuario.');
                   }
                 } catch (e) {
-                  // Maneja cualquier excepción que pueda ocurrir durante el inicio de sesión
                   print('Error durante el inicio de sesión: $e');
                 }
               },
