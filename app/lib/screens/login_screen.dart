@@ -1,13 +1,62 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:seguridad_vecinal/colors.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:seguridad_vecinal/services/auth_service.dart';
 import 'package:seguridad_vecinal/widgets/password_input_field.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final AuthService authService = AuthService();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    Future<void> loginUser(
+        String email, String password, BuildContext context) async {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:5001/api/validate-login'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userEmail', email);
+
+        Navigator.of(context).pushReplacementNamed('/home');
+      } else {
+        Fluttertoast.showToast(
+          msg: "Credenciales incorrectas",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 2,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 18.0,
+        );
+      }
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
@@ -36,6 +85,7 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             TextFormField(
+              controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 labelText: 'Ingresa tu mail',
@@ -60,15 +110,16 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 22.0),
-            PasswordField(),
+            PasswordField(controller: _passwordController),
             SizedBox(height: 40.0),
             ElevatedButton(
               child: Text(
-                'REGISTRARTE',
-                style: TextStyle(fontSize: 16.0),
+                'INICIAR SESIÓN',
+                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600),
               ),
               onPressed: () {
-                Navigator.pushNamed(context, '/register');
+                loginUser(
+                    _emailController.text, _passwordController.text, context);
               },
               style: ElevatedButton.styleFrom(
                 primary: AppColors.purple500,
@@ -81,13 +132,12 @@ class LoginScreen extends StatelessWidget {
               onPressed: () async {
                 try {
                   final userCredential = await AuthService().signInWithGoogle();
+                  print("userCredential $userCredential");
                   if (userCredential.user != null) {
-                    // Crear un objeto de argumentos para pasar
                     final args = {
                       'email': userCredential.user!.email,
                     };
 
-                    // Navegar y pasar los argumentos
                     Navigator.pushReplacementNamed(
                       context,
                       '/register',
@@ -110,8 +160,9 @@ class LoginScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Text(
-                    'Continuar con Google',
-                    style: TextStyle(fontSize: 16.0),
+                    'Continuar con',
+                    style:
+                        TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600),
                   ),
                   SizedBox(width: 8.0),
                   Flexible(

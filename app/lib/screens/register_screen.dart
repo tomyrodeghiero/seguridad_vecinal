@@ -38,7 +38,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!regex.hasMatch(_passwordController.text)) {
         Fluttertoast.showToast(
             msg:
-                "La contraseña debe tener al menos 6 caracteres y contener al menos un número");
+                "La contraseña debe tener al menos 6 caracteres y contener al menos un número",
+            timeInSecForIosWeb: 2,
+            fontSize: 18.0);
         return;
       }
 
@@ -47,12 +49,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final email = args?['email'] ?? '';
       if (_passwordController.text == email) {
         Fluttertoast.showToast(
-            msg: "La contraseña no debe ser idéntica al correo electrónico");
+            msg: "La contraseña no debe ser idéntica al correo electrónico",
+            timeInSecForIosWeb: 2,
+            fontSize: 18.0);
         return;
       }
 
       if (!_hasAcceptedTerms) {
-        Fluttertoast.showToast(msg: "Debe aceptar los términos y condiciones");
+        Fluttertoast.showToast(
+            msg: "Debe aceptar los términos y condiciones",
+            timeInSecForIosWeb: 2,
+            fontSize: 18.0);
         return;
       }
 
@@ -208,7 +215,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: _hasAcceptedTerms ? Colors.green : Colors.white,
+                    primary: _hasAcceptedTerms
+                        ? AppColors.turquoiseBlue500
+                        : Colors.white,
                     onPrimary: _hasAcceptedTerms
                         ? AppColors.purple500
                         : AppColors.waterGreen300,

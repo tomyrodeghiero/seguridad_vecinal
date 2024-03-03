@@ -15,6 +15,18 @@
 	</array>
 	<key>GIDClientID</key>
 	<string>79192326921-6vv34aurhs1193ii5nrf44j56ip8ojkj.apps.googleusercontent.com</string>
+	<key>NSCameraUsageDescription</key>
+	<string>¿Permite que "Cori" tome fotos?</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>¿Permite que "Cori" acceda a su galería de imágenes?</string>
+	<key>CLIENT_ID</key>
+	<string>1093366735023-ldlu5e6vku6fi10fgs3lnkmq8vcarct3.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.1093366735023-ldlu5e6vku6fi10fgs3lnkmq8vcarct3</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.seguridadVecinal</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

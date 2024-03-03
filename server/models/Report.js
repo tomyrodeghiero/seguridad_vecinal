@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const reportSchema = new mongoose.Schema({
     title: String,
-    description: String,
-    location: String,
+    description: [String],
+    neighborhood: String,
     timestamp: Date,
     images: [String],
     videos: [String],
