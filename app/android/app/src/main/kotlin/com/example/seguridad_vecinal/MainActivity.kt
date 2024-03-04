@@ -1,4 +1,4 @@
-package com.example.seguridad_vecinal
+package com.example.cori
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,38 +1,72 @@
 import 'package:flutter/material.dart';
-import 'package:seguridad_vecinal/colors.dart';
-import 'package:seguridad_vecinal/models/notification_model.dart';
-import 'package:seguridad_vecinal/screens/notification_detail_screen.dart';
+import 'package:cori/colors.dart';
+import 'package:cori/screens/notification_detail_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class NotificationsScreen extends StatelessWidget {
-  final List<NotificationModel> notifications = [
-    NotificationModel(
-      id: '1',
-      title: 'Alerta de robo',
-      subtitle:
-          'Juliana te envió una alarma el 10/12/23. Incluye ubicación y un audio de 20 seg. Sólo mantén la calma y espera que ya hemos contactado a las autoridades.',
-      date: '10/12/23',
-    ),
-    NotificationModel(
-      id: '2',
-      title: 'Incidente cercano: ROBO',
-      subtitle:
-          'Se ha reportado un robo en zona Banda Norte: San Luis 121. Hace 5 minutos...',
-      date: '13/12/23',
-    ),
-    NotificationModel(
-      id: '2',
-      title: 'Alerta de peligro',
-      subtitle: 'Has entrado en zona roja de peligro...',
-      date: '12/12/23',
-    ),
-    NotificationModel(
-      id: '2',
-      title: 'Alerta de disparos',
-      subtitle:
-          'Se ha reportado en tu comunidad: Banda Norte que se han oído sonidos de disparos.',
-      date: '11/12/23',
-    ),
-  ];
+class NotificationModel {
+  final String id;
+  final String title;
+  final String description;
+  final String date;
+  final List<String> images;
+
+  NotificationModel({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.date,
+    required this.images,
+  });
+
+  factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    return NotificationModel(
+      id: json['_id'],
+      title: json['title'],
+      description: json['description'],
+      date: json['date'],
+      images: List<String>.from(json['images'] ?? []),
+    );
+  }
+}
+
+class NotificationsScreen extends StatefulWidget {
+  @override
+  _NotificationsScreenState createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  List<NotificationModel> notifications = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNotifications();
+  }
+
+  Future<void> _fetchNotifications() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userEmail = prefs.getString('userEmail');
+
+    if (userEmail != null) {
+      final response = await http.get(
+        Uri.parse(
+            'http://127.0.0.1:5001/api/get-unread-notifications?email=$userEmail'),
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> notificationsJson = json.decode(response.body);
+        setState(() {
+          notifications = notificationsJson
+              .map((json) => NotificationModel.fromJson(json))
+              .toList();
+        });
+      } else {
+        print('Error fetching notifications: ${response.statusCode}');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,36 +120,53 @@ class NotificationsScreen extends StatelessWidget {
     required NotificationModel notification,
     required BuildContext context,
   }) {
-    return ListTile(
-      title: Text(
-        notification.title ?? 'Sin título',
-        style: TextStyle(
-            color: AppColors.purple500,
-            fontWeight: FontWeight.w600,
-            fontSize: 22.0),
+    return Container(
+      padding: EdgeInsets.only(bottom: 8.0), // Añade padding inferior
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+              color: Colors.grey[300]!, width: 1.0), // Añade borde inferior
+        ),
       ),
-      subtitle: Text(
-        notification.subtitle ?? 'No hay descripción.',
-        style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w400,
-            fontSize: 16.0,
-            height: 1.25),
-      ),
-      trailing: Image.asset(
-        'assets/next-arrow-colored.png', // Asegúrate de que este path sea correcto
-        height:
-            24, // Ajusta la altura para alinearla con el título según sea necesario
-      ),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                NotificationDetailScreen(notification: notification),
+      child: ListTile(
+        title: Text(
+          notification.title,
+          style: TextStyle(
+              color: AppColors.purple500,
+              fontWeight: FontWeight.w600,
+              fontSize: 22.0),
+        ),
+        subtitle: Padding(
+          padding: EdgeInsets.only(
+              top:
+                  8.0), // Añade un poco de espacio entre el título y la descripción
+          child: Text(
+            notification.description,
+            style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w400,
+                fontSize: 16.0,
+                height: 1.25),
           ),
-        );
-      },
+        ),
+        trailing: Image.asset(
+          'assets/next-arrow-colored.png',
+          height: 24,
+        ),
+        onTap: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  NotificationDetailScreen(notification: notification),
+            ),
+          );
+
+          if (result == true) {
+            _fetchNotifications();
+          }
+        },
+      ),
     );
   }
 }

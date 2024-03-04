@@ -1,6 +1,6 @@
 {
-    "name": "seguridad_vecinal",
-    "short_name": "seguridad_vecinal",
+    "name": "cori",
+    "short_name": "cori",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

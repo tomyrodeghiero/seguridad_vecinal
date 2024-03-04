@@ -6,6 +6,7 @@ const express = require('express');
 const User = require('./models/User');
 const Token = require('./models/Token');
 const Report = require('./models/Report');
+const Notification = require('./models/Notification');
 const connectDB = require('./db/index');
 const cloudinary = require('cloudinary').v2;
 
@@ -78,6 +79,7 @@ async function initializeOAuthClient() {
     }
 }
 
+// Store refresh token
 const storeRefreshToken = async (refreshToken) => {
     const existingToken = await Token.findOne();
     if (existingToken) {
@@ -89,36 +91,75 @@ const storeRefreshToken = async (refreshToken) => {
     }
 };
 
+// Register User
 app.post('/api/register-user', async (req, res) => {
-    const { email, password, neighborhood, gender, age, contactPhone } = req.body;
+    const form = new formidable.IncomingForm();
 
-    try {
-        const newUser = new User({
-            email,
-            password,
-            neighborhood,
-            gender,
-            age,
-            contactPhone,
-        });
+    form.parse(req, async (err, fields, files) => {
+        if (err) {
+            console.error("Error parsing the form", err);
+            return res.status(500).send("Error processing the form");
+        }
 
-        await newUser.save();
+        // Extrae y asegura que cada campo sea una cadena
+        const email = Array.isArray(fields.email) ? fields.email[0] : fields.email;
+        const password = Array.isArray(fields.password) ? fields.password[0] : fields.password;
+        const neighborhood = Array.isArray(fields.neighborhood) ? fields.neighborhood[0] : fields.neighborhood;
+        const gender = Array.isArray(fields.gender) ? fields.gender[0] : fields.gender;
+        const age = parseInt(Array.isArray(fields.age) ? fields.age[0] : fields.age, 10);
+        const fullName = Array.isArray(fields.fullName) ? fields.fullName[0] : fields.fullName;
 
-        res.status(201).send('Usuario registrado con éxito');
-    } catch (error) {
-        console.log(error);
-        res.status(500).send('Error al registrar el usuario');
-    }
+        let imageUrl = '';
+        if (files.image) {
+            const imageFile = Array.isArray(files.image) ? files.image[0] : files.image;
+            try {
+                const result = await uploadToCloudinary(imageFile.filepath);
+                imageUrl = result;
+            } catch (uploadError) {
+                console.error("Error uploading image to Cloudinary", uploadError);
+                return res.status(500).send("Error uploading image");
+            }
+        }
+
+        try {
+            const newUser = new User({
+                email,
+                password,
+                neighborhood,
+                gender,
+                imageUrl,
+                age,
+                fullName,
+            });
+
+            await newUser.save();
+
+            // Modifica aquí para enviar los datos del usuario en la respuesta
+            const userData = {
+                userEmail: newUser.email,
+                fullName: newUser.fullName,
+                imageUrl: newUser.imageUrl
+            };
+            console.log("userData->", userData)
+            res.status(201).json({
+                message: 'Usuario registrado con éxito',
+                data: userData,
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(500).send('Error al registrar el usuario');
+        }
+    });
 });
 
-// Google Drive
+
+// Cloudinary
 async function uploadToCloudinary(filePath, resourceType = 'auto') {
     try {
         const result = await cloudinary.uploader.upload(filePath, {
             resource_type: resourceType,
             folder: 'cori',
         });
-        console.log("result.secure_url", result.secure_url)
         return result.secure_url;
     } catch (error) {
         console.error("Error uploading file to Cloudinary", error);
@@ -135,16 +176,26 @@ app.post('/api/create-report', async (req, res) => {
             return res.status(500).send("Error processing the form");
         }
 
-        const { title, neighborhood } = fields;
-        let { description } = fields;
+        let senderEmail = fields.senderEmail;
+        let title = fields.title;
+        let neighborhood = fields.neighborhood;
         const images = files.images;
+        let description = fields.description;
 
+        if (Array.isArray(senderEmail)) {
+            senderEmail = senderEmail[0];
+        }
+        if (Array.isArray(title)) {
+            title = title[0];
+        }
+        if (Array.isArray(neighborhood)) {
+            neighborhood = neighborhood[0];
+        }
         if (Array.isArray(description)) {
-            description = description.join(" ");
+            description = description[0];
         }
 
         let imageUrls = [];
-
         if (Array.isArray(images)) {
             for (let image of images) {
                 const fileUrl = await uploadToCloudinary(image.filepath);
@@ -155,19 +206,44 @@ app.post('/api/create-report', async (req, res) => {
             imageUrls.push(fileUrl);
         }
 
+        const user = await User.findOne({ email: senderEmail });
+        const senderProfileImage = user ? user.imageUrl : 'URL predeterminada si no se encuentra el usuario';
+
         const newReport = new Report({
             title,
             description,
             neighborhood,
             timestamp: new Date(),
             images: imageUrls,
+            senderEmail,
+            senderProfileImage,
         });
 
-        await newReport.save();
+        try {
+            await newReport.save();
 
+            const users = await User.find({ email: { $ne: senderEmail } });
+            for (let user of users) {
+                const newNotification = new Notification({
+                    message: newReport.title,
+                    recipientEmail: user.email,
+                    title,
+                    description,
+                    neighborhood,
+                    timestamp: new Date(),
+                    images: imageUrls,
+                    senderEmail,
+                    senderProfileImage,
+                });
+                await newNotification.save();
+            }
 
-        res.json({ message: 'Report created successfully', reportId: newReport._id });
-        console.log("Report created successfully");
+            res.json({ message: 'Report created successfully', reportId: newReport._id, senderProfileImage });
+            console.log("Report created successfully: ", newReport);
+        } catch (error) {
+            console.error("Error saving the report:", error);
+            res.status(500).send("Error saving the report");
+        }
     });
 });
 
@@ -177,7 +253,12 @@ app.post('/api/validate-login', async (req, res) => {
     try {
         const user = await User.findOne({ email, password });
         if (user) {
-            res.status(200).json({ message: 'Login successful', userId: user._id });
+            res.status(200).json({
+                message: 'Login successful',
+                userEmail: user.email,
+                fullName: user.fullName,
+                imageUrl: user.imageUrl
+            });
         } else {
             res.status(401).json({ message: 'Invalid credentials' });
         }
@@ -186,6 +267,95 @@ app.post('/api/validate-login', async (req, res) => {
     }
 });
 
+
+// Check if an email exist in the Database
+app.get('/api/check-email', async (req, res) => {
+    const { email } = req.query;
+    if (!email) {
+        return res.status(400).send({ message: 'Email is required' });
+    }
+    try {
+        const user = await User.findOne({ email });
+        if (user) {
+            res.status(200).json({ exists: true });
+        } else {
+            res.status(200).json({ exists: false });
+        }
+    } catch (error) {
+        res.status(500).send('Error checking email');
+    }
+});
+
+
+// Get Reports
+app.get('/api/get-reports', async (req, res) => {
+    try {
+        const reports = await Report.find({}).sort({ timestamp: -1 });
+        res.status(200).json(reports);
+    } catch (error) {
+        console.error("Error fetching reports:", error);
+        res.status(500).send("Error fetching reports");
+    }
+});
+
+// Get notifiactions by user
+app.get('/api/get-notifications', async (req, res) => {
+    const { email } = req.query;
+
+    if (!email) {
+        return res.status(400).send({ message: 'Email query parameter is required.' });
+    }
+
+    try {
+        const notifications = await Notification.find({ recipientEmail: email }).sort({ date: -1 });
+        res.json(notifications);
+    } catch (error) {
+        console.error("Error fetching notifications:", error);
+        res.status(500).send("Error fetching notifications");
+    }
+});
+
+app.get('/api/get-unread-notifications', async (req, res) => {
+    const { email } = req.query;
+
+    if (!email) {
+        return res.status(400).send({ message: 'Email query parameter is required.' });
+    }
+
+    try {
+        const notifications = await Notification.find({
+            recipientEmail: email,
+            readByUsers: { $ne: email }
+        }).sort({ date: -1 });
+
+        res.json(notifications);
+    } catch (error) {
+        console.error("Error fetching unread notifications:", error);
+        res.status(500).send("Error fetching unread notifications");
+    }
+});
+
+
+// Read notification by user
+app.post('/api/mark-notification-read', async (req, res) => {
+    const { notificationId, userEmail } = req.body;
+    console.log("notificationId", notificationId)
+    console.log("userEmail", userEmail)
+
+    try {
+        const notification = await Notification.findById(notificationId);
+        if (!notification.readByUsers.includes(userEmail)) {
+            notification.readByUsers.push(userEmail);
+            await notification.save();
+            res.status(200).json({ message: 'Notificación marcada como leída.' });
+        } else {
+            res.status(200).json({ message: 'Notificación ya fue marcada como leída.' });
+        }
+    } catch (error) {
+        console.error("Error marcando la notificación como leída:", error);
+        res.status(500).json({ message: "Error actualizando la notificación" });
+    }
+});
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running in port ${PORT}`));

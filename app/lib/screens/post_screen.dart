@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:seguridad_vecinal/colors.dart';
+import 'package:cori/colors.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PostScreen extends StatefulWidget {
   @override
@@ -14,8 +16,11 @@ class PostScreen extends StatefulWidget {
 
 class _PostScreenState extends State<PostScreen> {
   final ImagePicker _picker = ImagePicker();
-  List<XFile>? _imageFileList;
   final TextEditingController _textController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  List<XFile>? _imageFileList;
+  String? _selectedNeighborhood;
+  bool _isLoading = false;
 
   void _pickImage() async {
     final List<XFile>? selectedImages = await _picker.pickMultiImage();
@@ -24,38 +29,109 @@ class _PostScreenState extends State<PostScreen> {
     });
   }
 
-  Future<void> _publishPost() async {
-    var uri = Uri.parse('http://127.0.0.1:5001/api/create-report');
-    var request = http.MultipartRequest('POST', uri);
+  String? _userImageUrl;
 
-    request.fields['title'] = 'Un título aquí';
-    request.fields['description'] = _textController.text;
-    request.fields['neighborhood'] = 'Un vecindario aquí';
+  @override
+  void initState() {
+    super.initState();
+    _loadUserImage();
+  }
 
-    for (var imageFile in _imageFileList!) {
-      request.files.add(await http.MultipartFile.fromPath(
-        'images',
-        imageFile.path,
-        contentType:
-            MediaType('image', basename(imageFile.path).split('.').last),
-      ));
-    }
-
-    try {
-      var response = await request.send();
-
-      if (response.statusCode == 200) {
-        print("Reporte creado con éxito.");
-      } else {
-        print("Falló la creación del reporte.");
-      }
-    } catch (e) {
-      print("Error al enviar el reporte: $e");
-    }
+  void _loadUserImage() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userImageUrl = prefs.getString('imageUrl');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    Future<void> _publishPost() async {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? userEmail = prefs.getString('userEmail');
+
+      if (userEmail == null) {
+        Fluttertoast.showToast(
+          msg: "No se encontró el email del usuario.",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        return;
+      }
+
+      var uri = Uri.parse('http://127.0.0.1:5001/api/create-report');
+      var request = http.MultipartRequest('POST', uri);
+
+      request.fields['senderEmail'] = userEmail;
+      request.fields['title'] = _textController.text;
+      request.fields['description'] = _descriptionController.text; // Correcto
+      request.fields['neighborhood'] =
+          _selectedNeighborhood ?? "No especificado"; // Correcto
+
+      for (var imageFile in _imageFileList ?? []) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'images',
+          imageFile.path,
+          contentType:
+              MediaType('image', basename(imageFile.path).split('.').last),
+        ));
+      }
+
+      try {
+        var response = await request.send();
+
+        if (response.statusCode == 200) {
+          print("Reporte creado con éxito.");
+
+          Fluttertoast.showToast(
+            msg: "¡Gracias! Tu reporte fue creado correctamente.",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 2,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          Navigator.of(context).pop(true);
+        } else {
+          print("Falló la creación del reporte.");
+          Fluttertoast.showToast(
+            msg: "Error al guardar el reporte, intenta nuevamente.",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        }
+      } catch (e) {
+        print("Error al enviar el reporte: $e");
+        Fluttertoast.showToast(
+          msg: "Error al enviar el reporte, verifica tu conexión.",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -67,34 +143,73 @@ class _PostScreenState extends State<PostScreen> {
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: _publishPost,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(50.0),
-              child: Container(
-                color: AppColors.purple500,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 16.0),
-                  child: Text(
-                    'Publicar',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 18.0),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Expanded(
+              child: DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(
+                      vertical: 0.0, horizontal: 12.0), // Ajusta este valor
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(28.0),
+                    borderSide: BorderSide(color: AppColors.purple500),
                   ),
                 ),
+                hint: Text(
+                  '¿Dónde sucede?',
+                  style: TextStyle(fontSize: 18.0),
+                ),
+                value: _selectedNeighborhood,
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedNeighborhood = newValue;
+                  });
+                },
+                items: <String>[
+                  'Alberdi',
+                  'Bimaco',
+                  'Banda Norte',
+                  'Micro centro'
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value, style: TextStyle(fontSize: 14.0)),
+                  );
+                }).toList(),
               ),
             ),
-          ),
-        ],
+            _isLoading
+                ? CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  )
+                : TextButton(
+                    onPressed: _isLoading
+                        ? null
+                        : _publishPost, // Deshabilita el botón mientras carga
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(50.0),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 16.0),
+                        color: AppColors.purple500,
+                        child: Text(
+                          'Publicar',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 18.0),
+                        ),
+                      ),
+                    ),
+                  ),
+          ],
+        ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Expanded(
-            flex: 9,
             child: Padding(
               padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
               child: Column(
@@ -107,12 +222,15 @@ class _PostScreenState extends State<PostScreen> {
                           width: 36.0,
                           height: 36.0,
                           decoration: BoxDecoration(
-                            color: Colors.grey[400],
+                            color: Colors.grey[
+                                400], // Puedes quitar este color si siempre tendrás una imagen
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.purple500,
-                              width: 1,
-                            ),
+                            image: _userImageUrl != null
+                                ? DecorationImage(
+                                    image: NetworkImage(_userImageUrl!),
+                                    fit: BoxFit.fill,
+                                  )
+                                : null,
                           ),
                         ),
                       ),
@@ -127,6 +245,25 @@ class _PostScreenState extends State<PostScreen> {
                         ),
                       ),
                     ],
+                  ),
+                  SizedBox(height: 12.0),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _descriptionController,
+                      decoration: InputDecoration(
+                        labelText: 'Describe lo que sucedió...',
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        border: InputBorder.none,
+                        labelStyle: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 28.0,
+                            fontWeight: FontWeight.w500),
+                      ),
+                      maxLines:
+                          null, // Ajusta el número de líneas si es necesario
+                      keyboardType: TextInputType
+                          .multiline, // Adecuado para entradas de texto multilínea
+                    ),
                   ),
                 ],
               ),
@@ -149,8 +286,28 @@ class _PostScreenState extends State<PostScreen> {
                   if (_imageFileList != null)
                     for (var imageFile in _imageFileList!)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Image.file(File(imageFile.path)),
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Container(
+                          width: 100.0, // Ancho fijo para la imagen
+                          height: 100.0, // Alto fijo para la imagen
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppColors.purple500, // Color del borde
+                              width: 1.0, // Ancho del borde
+                            ),
+                            borderRadius: BorderRadius.circular(
+                                8.0), // Radio del borde para esquinas redondeadas
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                                8.0), // Radio del borde para el clip de la imagen
+                            child: Image.file(
+                              File(imageFile.path),
+                              fit: BoxFit
+                                  .cover, // Asegura que la imagen cubra todo el espacio disponible
+                            ),
+                          ),
+                        ),
                       ),
                 ],
               ),

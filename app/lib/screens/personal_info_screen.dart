@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'dart:convert';
+import 'package:cori/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:seguridad_vecinal/colors.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:path/path.dart';
 
 class PersonalInfoScreen extends StatefulWidget {
   @override
@@ -14,7 +17,7 @@ class PersonalInfoScreen extends StatefulWidget {
 
 class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
   TextEditingController ageController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
+  TextEditingController fullNameController = TextEditingController();
   String? selectedGender;
   String? selectedNeighborhood;
   final _formKey = GlobalKey<FormState>();
@@ -22,7 +25,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
 
   @override
   void dispose() {
-    nameController.dispose();
+    fullNameController.dispose();
     ageController.dispose();
     super.dispose();
   }
@@ -34,8 +37,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
       setState(() {
-        _imageSelected =
-            image; // Correctamente actualiza la imagen seleccionada
+        _imageSelected = image;
       });
     }
 
@@ -44,7 +46,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       final XFile? image = await _picker.pickImage(source: ImageSource.camera);
 
       setState(() {
-        _imageSelected = image; // Correctamente actualiza la imagen capturada
+        _imageSelected = image;
       });
     }
 
@@ -55,70 +57,80 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
     final String password = registrationData['password'] ?? 'No proporcionado';
 
     void _registerUser() async {
-      // Verifica si los campos del formulario son válidos
       if (_formKey.currentState!.validate()) {
-        // Verifica si los campos obligatorios están llenos
-        bool hasName = nameController.text.trim().isNotEmpty;
-        bool hasGender = selectedGender != null && selectedGender!.isNotEmpty;
-        bool hasAge = ageController.text.trim().isNotEmpty;
-        bool hasNeighborhood =
-            selectedNeighborhood != null && selectedNeighborhood!.isNotEmpty;
-
-        // Si todos los campos obligatorios están llenos, intenta registrar al usuario
-        print("$hasName");
-        print("$hasGender");
-        print("$hasAge");
-        print("$hasNeighborhood");
-        if (hasName && hasGender && hasAge && hasNeighborhood) {
-          final response = await http.post(
-            Uri.parse('http://127.0.0.1:5001/api/register-user'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: jsonEncode(<String, dynamic>{
-              'email': email,
-              'password': password,
-              'neighborhood': selectedNeighborhood,
-              'gender': selectedGender,
-              'age': int.tryParse(ageController.text) ?? 0,
-            }),
-          );
-
-          // Si el registro fue exitoso, muestra un toast y navega a la siguiente pantalla
-          if (response.statusCode == 201) {
-            Fluttertoast.showToast(
-              msg: "✅ Usuario registrado con éxito",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.CENTER,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
-            Navigator.of(context).pushNamed('/onboarding');
-          } else {
-            Fluttertoast.showToast(
-              msg: "❌ Error al registrar el usuario: ${response.body}",
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.CENTER,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
-          }
-        } else {
-          // Si no todos los campos obligatorios están llenos, muestra un toast
+        if (_imageSelected == null) {
           Fluttertoast.showToast(
-            msg: "⚠️ Por favor, completa todos los campos obligatorios",
+            msg: "⚠️ Por favor, agrega una imagen para continuar",
             toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 2,
+            backgroundColor: Colors.orange,
+            textColor: Colors.white,
+            fontSize: 18.0,
+          );
+          return;
+        }
+
+        var uri = Uri.parse('http://127.0.0.1:5001/api/register-user');
+        var request = http.MultipartRequest('POST', uri);
+
+        request.fields['email'] = email;
+        request.fields['fullName'] = fullNameController.text;
+        request.fields['password'] = password;
+        request.fields['neighborhood'] = selectedNeighborhood ?? '';
+        request.fields['gender'] = selectedGender ?? '';
+        request.fields['age'] = ageController.text;
+
+        if (_imageSelected != null) {
+          request.files.add(await http.MultipartFile.fromPath(
+            'image',
+            _imageSelected!.path,
+            contentType: MediaType('image', basename(_imageSelected!.path)),
+          ));
+        }
+
+        var streamedResponse = await request.send();
+        var response = await http.Response.fromStream(streamedResponse);
+
+        if (response.statusCode == 201) {
+          final data = jsonDecode(response.body);
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          final userData = data['data'];
+          await prefs.setString('userEmail', userData['userEmail'] ?? '');
+          await prefs.setString('fullName', userData['fullName'] ?? '');
+          await prefs.setString('imageUrl', userData['imageUrl'] ?? '');
+
+          Fluttertoast.showToast(
+            msg: "✅ Usuario registrado con éxito",
+            toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 2,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 18.0,
+          );
+          Navigator.of(context).pushNamed('/onboarding');
+        } else {
+          Fluttertoast.showToast(
+            msg: "❌ Error al registrar el usuario: ${response.body}",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
             textColor: Colors.white,
             fontSize: 16.0,
           );
         }
+      } else {
+        Fluttertoast.showToast(
+          msg: "⚠️ Por favor, completa todos los campos obligatorios",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
       }
     }
 
@@ -157,7 +169,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: Colors.black,
-                          width: 2.0,
+                          width: 1.0,
                         ),
                         image: _imageSelected != null
                             ? DecorationImage(
@@ -233,7 +245,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                   ),
                 ),
                 TextFormField(
-                  controller: nameController,
+                  controller: fullNameController,
                   decoration: InputDecoration(
                     hintText: 'Ej. Luciana Gonzales',
                     hintStyle: TextStyle(color: Colors.grey),
@@ -433,7 +445,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                 ),
                 TextFormField(
                   decoration: InputDecoration(
-                    hintText: 'Ej. 358 513 5564',
+                    hintText: 'Ej. 358 513 556 4',
                     hintStyle: TextStyle(color: Colors.grey),
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
@@ -457,7 +469,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                 SizedBox(height: 10.0),
                 TextFormField(
                   decoration: InputDecoration(
-                    hintText: 'Ej. 358 511 5548',
+                    hintText: 'Ej. 358 511 554 8',
                     hintStyle: TextStyle(color: Colors.grey),
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),

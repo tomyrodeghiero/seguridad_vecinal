@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:seguridad_vecinal/colors.dart';
+import 'package:cori/colors.dart';
 
 class PasswordField extends StatefulWidget {
   final bool isLabelFloating;
@@ -22,12 +22,12 @@ class _PasswordFieldState extends State<PasswordField> {
       obscureText: _obscureText,
       decoration: InputDecoration(
         labelText: 'Contraseña',
-        labelStyle: TextStyle(color: Colors.grey),
+        labelStyle: TextStyle(color: Colors.grey, fontSize: 18.0),
         floatingLabelBehavior: widget.isLabelFloating
             ? FloatingLabelBehavior.auto
             : FloatingLabelBehavior.never,
         hintText: widget.isLabelFloating ? null : 'Contraseña',
-        hintStyle: TextStyle(color: Colors.grey),
+        hintStyle: TextStyle(color: Colors.grey, fontSize: 18.0),
         contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
         filled: true,
         fillColor: Colors.white,

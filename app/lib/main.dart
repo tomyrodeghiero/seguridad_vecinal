@@ -2,14 +2,14 @@ import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:seguridad_vecinal/screens/home_screen.dart';
-import 'package:seguridad_vecinal/screens/notifications_screen.dart';
-import 'package:seguridad_vecinal/screens/onboarding_screen.dart';
-import 'package:seguridad_vecinal/screens/personal_info_screen.dart';
-import 'package:seguridad_vecinal/screens/post_screen.dart';
-import 'package:seguridad_vecinal/screens/profile_screen.dart';
-import 'package:seguridad_vecinal/screens/register_screen.dart';
-import 'package:seguridad_vecinal/screens/splash_screen.dart';
+import 'package:cori/screens/home_screen.dart';
+import 'package:cori/screens/notifications_screen.dart';
+import 'package:cori/screens/onboarding_screen.dart';
+import 'package:cori/screens/personal_info_screen.dart';
+import 'package:cori/screens/post_screen.dart';
+import 'package:cori/screens/profile_screen.dart';
+import 'package:cori/screens/register_screen.dart';
+import 'package:cori/screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

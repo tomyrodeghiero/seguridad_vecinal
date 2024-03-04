@@ -1,7 +1,11 @@
+import 'package:cori/components/custom_bottom_nav_bar.dart';
+import 'package:cori/screens/home_screen.dart';
+import 'package:cori/screens/map_screen.dart';
+import 'package:cori/utils/navigation_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:seguridad_vecinal/colors.dart';
-import 'package:seguridad_vecinal/components/custom_drawer.dart';
-import 'package:seguridad_vecinal/screens/community_detail_screen.dart';
+import 'package:cori/colors.dart';
+import 'package:cori/components/custom_drawer.dart';
+import 'package:cori/screens/community_detail_screen.dart';
 
 class Community {
   final String name;
@@ -21,6 +25,30 @@ class CommunityScreen extends StatefulWidget {
 }
 
 class _CommunityScreenState extends State<CommunityScreen> {
+  void _onItemTapped(int index) {
+    switch (index) {
+      case 0:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+        break;
+      case 1:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MapScreen()),
+        );
+        break;
+      case 2:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => CommunityScreen()),
+        );
+        break;
+    }
+  }
+
+  int _selectedIndex = 2;
   final List<Community> communities = [
     Community(
         name: 'Banda Norte',
@@ -150,6 +178,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
           color: Colors.transparent,
           height: 0,
         ),
+      ),
+      bottomNavigationBar: CustomBottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
     );
   }

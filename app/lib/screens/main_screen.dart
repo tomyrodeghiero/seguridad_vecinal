@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:seguridad_vecinal/colors.dart';
-import 'package:seguridad_vecinal/screens/community_screen.dart';
-import 'package:seguridad_vecinal/screens/home_screen.dart';
-import 'package:seguridad_vecinal/screens/map_screen.dart';
+import 'package:cori/colors.dart';
+import 'package:cori/screens/home_screen.dart';
+import 'package:cori/screens/map_screen.dart';
+import 'package:cori/screens/community_screen.dart';
 
 class MainScreen extends StatefulWidget {
   @override

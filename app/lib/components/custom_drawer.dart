@@ -1,13 +1,23 @@
 // custom_drawer.dart
+import 'package:cori/screens/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:seguridad_vecinal/colors.dart';
-import 'package:seguridad_vecinal/screens/profile_screen.dart';
+import 'package:cori/colors.dart';
+import 'package:cori/screens/profile_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    Future<void> _clearPreferencesAndLogout(BuildContext context) async {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      Navigator.of(context)
+          .pushReplacement(MaterialPageRoute(builder: (_) => LoginScreen()));
+    }
+
     return Drawer(
       backgroundColor: AppColors.waterGreen400,
       child: Container(
@@ -119,6 +129,18 @@ class CustomDrawer extends StatelessWidget {
                               fontSize: 18.0,
                               fontWeight: FontWeight.w500)),
                       onTap: () {},
+                    ),
+                    ListTile(
+                      leading:
+                          Icon(Icons.exit_to_app_outlined, color: Colors.white),
+                      title: Text('Cerrar sesión',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w500)),
+                      onTap: () {
+                        _clearPreferencesAndLogout(context);
+                      },
                     ),
                   ],
                 ),

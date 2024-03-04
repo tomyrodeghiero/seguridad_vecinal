@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:seguridad_vecinal/colors.dart';
-import 'package:seguridad_vecinal/widgets/password_input_field.dart';
+import 'package:cori/colors.dart';
+import 'package:cori/widgets/password_input_field.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -18,7 +18,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
 
-    final email = args?['email'] ?? 'No se proporcionó correo electrónico';
+    final email = args?['email'] ?? '';
 
     void _attemptRegistration() {
       if (_passwordController.text.isEmpty ||
@@ -114,10 +114,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               TextFormField(
                 initialValue: email,
-                readOnly: true,
-                enabled: false,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
+                  hintText: 'Ingresa tu Email',
+                  hintStyle: TextStyle(color: Colors.grey, fontSize: 18.0),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
@@ -150,7 +150,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   'Contraseña',
                   textAlign: TextAlign.left,
                   style: TextStyle(
-                      fontSize: 16.0,
+                      fontSize: 18.0,
                       color: Colors.white,
                       fontWeight: FontWeight.w400),
                 ),
@@ -174,7 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   'Verificar contraseña',
                   textAlign: TextAlign.left,
                   style: TextStyle(
-                      fontSize: 16.0,
+                      fontSize: 18.0,
                       color: Colors.white,
                       fontWeight: FontWeight.w400),
                 ),

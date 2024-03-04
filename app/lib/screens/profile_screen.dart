@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:seguridad_vecinal/colors.dart';
+import 'package:cori/colors.dart';
 
 class ProfileScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();

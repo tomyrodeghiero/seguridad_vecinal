@@ -1,8 +1,11 @@
+import 'package:cori/components/custom_bottom_nav_bar.dart';
+import 'package:cori/screens/community_screen.dart';
+import 'package:cori/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:seguridad_vecinal/colors.dart';
-import 'package:seguridad_vecinal/components/custom_drawer.dart';
+import 'package:cori/colors.dart';
+import 'package:cori/components/custom_drawer.dart';
 
 class RiskZone {
   List<LatLng> points;
@@ -25,11 +28,35 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
+  int _selectedIndex = 1;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Marker> markers = [];
   List<Polygon> riskZones = [];
   MapContentType _contentType = MapContentType.none;
   List<CircleMarker> circleMarkers = [];
+
+  void _onItemTapped(int index) {
+    switch (index) {
+      case 0:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+        break;
+      case 1:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MapScreen()),
+        );
+        break;
+      case 2:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => CommunityScreen()),
+        );
+        break;
+    }
+  }
 
   @override
   void initState() {
@@ -209,105 +236,108 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text(
-          'Mapa',
-          style: TextStyle(
-            fontSize: 22.0,
-            color: AppColors.purple500,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        iconTheme: IconThemeData(color: Colors.black),
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
-          },
-        ),
-      ),
-      drawer: CustomDrawer(),
-      body: Stack(
-        children: [
-          FlutterMap(
-            options: MapOptions(
-              center: LatLng(-33.1232, -64.3493),
-              zoom: 13.0,
-              interactiveFlags:
-                  InteractiveFlag.pinchZoom | InteractiveFlag.drag,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: Text(
+            'Mapa',
+            style: TextStyle(
+              fontSize: 22.0,
+              color: AppColors.purple500,
+              fontWeight: FontWeight.w600,
             ),
-            children: [
-              TileLayer(
-                urlTemplate:
-                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                subdomains: ['a', 'b', 'c'],
-              ),
-              PolygonLayer(polygons: riskZones),
-              CircleLayer(circles: circleMarkers),
-              MarkerLayer(markers: markers),
-            ],
           ),
-          Positioned(
-              bottom: 20.0,
-              left: 20.0,
-              child: Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.purple500,
-                    borderRadius: BorderRadius.circular(16.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 8.0,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(0),
-                        child: Text(
-                          'Filtros',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
+          iconTheme: IconThemeData(color: Colors.black),
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              _scaffoldKey.currentState?.openDrawer();
+            },
+          ),
+        ),
+        drawer: CustomDrawer(),
+        body: Stack(
+          children: [
+            FlutterMap(
+              options: MapOptions(
+                center: LatLng(-33.1232, -64.3493),
+                zoom: 13.0,
+                interactiveFlags:
+                    InteractiveFlag.pinchZoom | InteractiveFlag.drag,
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate:
+                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  subdomains: ['a', 'b', 'c'],
+                ),
+                PolygonLayer(polygons: riskZones),
+                CircleLayer(circles: circleMarkers),
+                MarkerLayer(markers: markers),
+              ],
+            ),
+            Positioned(
+                bottom: 20.0,
+                left: 20.0,
+                child: Container(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    decoration: BoxDecoration(
+                      color: AppColors.purple500,
+                      borderRadius: BorderRadius.circular(16.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 8.0,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(0),
+                          child: Text(
+                            'Filtros',
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
-                      ),
-                      Wrap(
-                        spacing: 16.0,
-                        children: [
-                          _buildFloatingButton(
-                            icon: Icons.warning_amber_rounded,
-                            label: 'Reportes',
-                            onTap: _loadNeighborhoodReports,
-                            contentType: MapContentType.neighborhoodReports,
-                          ),
-                          _buildFloatingButton(
-                            icon: Icons.local_police,
-                            label: 'Comisarías',
-                            onTap: _loadPoliceStations,
-                            contentType: MapContentType.policeStations,
-                          ),
-                          _buildFloatingButton(
-                            icon: Icons.local_hospital,
-                            label: 'Salud',
-                            onTap: _loadHealthLocations,
-                            contentType: MapContentType.healthStations,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ))),
-        ],
-      ),
-    );
+                        Wrap(
+                          spacing: 16.0,
+                          children: [
+                            _buildFloatingButton(
+                              icon: Icons.warning_amber_rounded,
+                              label: 'Reportes',
+                              onTap: _loadNeighborhoodReports,
+                              contentType: MapContentType.neighborhoodReports,
+                            ),
+                            _buildFloatingButton(
+                              icon: Icons.local_police,
+                              label: 'Comisarías',
+                              onTap: _loadPoliceStations,
+                              contentType: MapContentType.policeStations,
+                            ),
+                            _buildFloatingButton(
+                              icon: Icons.local_hospital,
+                              label: 'Salud',
+                              onTap: _loadHealthLocations,
+                              contentType: MapContentType.healthStations,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ))),
+          ],
+        ),
+        bottomNavigationBar: CustomBottomNavBar(
+          selectedIndex: _selectedIndex,
+          onItemTapped: _onItemTapped,
+        ));
   }
 
   Widget _buildFloatingButton({

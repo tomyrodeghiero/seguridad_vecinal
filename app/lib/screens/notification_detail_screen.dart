@@ -1,6 +1,10 @@
+import 'dart:convert';
+
+import 'package:cori/screens/notifications_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:seguridad_vecinal/colors.dart';
-import 'package:seguridad_vecinal/models/notification_model.dart';
+import 'package:cori/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class NotificationDetailScreen extends StatelessWidget {
   final NotificationModel notification;
@@ -49,7 +53,7 @@ class NotificationDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              notification.title ?? 'Sin título',
+              notification.title,
               style: TextStyle(
                 fontSize: 24.0,
                 fontWeight: FontWeight.w500,
@@ -58,7 +62,7 @@ class NotificationDetailScreen extends StatelessWidget {
             ),
             SizedBox(height: 4.0),
             Text(
-              notification.subtitle ?? 'Sin descripción.',
+              notification.description,
               style: TextStyle(
                 fontSize: 16.0,
                 color: Colors.black,
@@ -66,56 +70,25 @@ class NotificationDetailScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20.0),
-            Container(
-              width: double.infinity,
-              height: 225.0,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                border: Border.all(
-                  color: AppColors.purple500,
-                  width: 1.0,
-                ),
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-            ),
-            SizedBox(height: 20.0),
-            Container(
-              height: 64.0,
-              padding: EdgeInsets.symmetric(horizontal: 12.0),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(4.0),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: Image.asset(
-                      'assets/play.png',
-                      height: 24.0,
-                    ),
-                    onPressed: () {},
-                  ),
-                  Row(
-                    children: List.generate(
-                        14,
-                        (index) => Icon(Icons.more_vert,
-                            size: 15, color: AppColors.purple500)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 16.0),
-                    child: Text(
-                      '0:20',
-                      style: TextStyle(
-                          color: AppColors.purple500,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 18.0),
+            Column(
+              children: notification.images.map((image) {
+                return Container(
+                  height: 225.0,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12.0),
+                      child: Image.network(
+                        image,
+                        fit: BoxFit.cover,
+                        width: double
+                            .infinity, // Hace que la imagen se expanda para ocupar el ancho disponible
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
-            SizedBox(height: 20.0),
+                );
+              }).toList(),
+            )
           ],
         ),
       ),
@@ -123,7 +96,30 @@ class NotificationDetailScreen extends StatelessWidget {
         height: 40,
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
         child: FloatingActionButton.extended(
-          onPressed: () {},
+          onPressed: () async {
+            final SharedPreferences prefs =
+                await SharedPreferences.getInstance();
+            String? userEmail = prefs.getString('userEmail');
+
+            if (userEmail != null) {
+              final response = await http.post(
+                Uri.parse('http://127.0.0.1:5001/api/mark-notification-read'),
+                headers: <String, String>{
+                  'Content-Type': 'application/json; charset=UTF-8',
+                },
+                body: jsonEncode(<String, String>{
+                  'notificationId': notification.id,
+                  'userEmail': userEmail,
+                }),
+              );
+
+              if (response.statusCode == 200) {
+                Navigator.of(context).pop(true);
+              } else {
+                print('Error marcando la notificación como leída');
+              }
+            }
+          },
           label: Text(
             'Eliminar',
             style: TextStyle(

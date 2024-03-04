@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:seguridad_vecinal/colors.dart';
-import 'package:seguridad_vecinal/components/custom_drawer.dart';
-import 'package:seguridad_vecinal/screens/community_post_screen.dart';
-import 'package:seguridad_vecinal/screens/post_screen.dart';
+import 'package:cori/colors.dart';
+import 'package:cori/components/custom_drawer.dart';
+import 'package:cori/screens/community_post_screen.dart';
+import 'package:cori/screens/post_screen.dart';
 
 class CommunityDetailScreen extends StatelessWidget {
   String getAvatarAsset(int index) {
@@ -157,7 +157,17 @@ class CommunityDetailScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => CommunityPostScreen()),
+                          builder: (context) => CommunityPostScreen(
+                            senderEmail:
+                                'email@example.com', // Debes reemplazar estos valores
+                            title: 'Título del Post',
+                            description: 'Descripción del post aquí.',
+                            images: [
+                              'https://example.com/image.jpg'
+                            ], // Asegúrate de pasar URLs o rutas de imágenes válidas
+                            timestamp: DateTime.now(),
+                          ),
+                        ),
                       );
                     },
                     child: Container(

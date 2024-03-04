@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:seguridad_vecinal/colors.dart';
+import 'package:cori/colors.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:seguridad_vecinal/services/auth_service.dart';
-import 'package:seguridad_vecinal/widgets/password_input_field.dart';
+import 'package:cori/services/auth_service.dart';
+import 'package:cori/widgets/password_input_field.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -40,13 +40,16 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userEmail', email);
+        await prefs.setString('userEmail', data['userEmail']);
+        await prefs.setString('fullName', data['fullName'] ?? '');
+        await prefs.setString('imageUrl', data['imageUrl'] ?? '');
 
         Navigator.of(context).pushReplacementNamed('/home');
       } else {
         Fluttertoast.showToast(
-          msg: "Credenciales incorrectas",
+          msg: "⚠️ Credenciales incorrectas",
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 2,
@@ -89,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 labelText: 'Ingresa tu mail',
-                labelStyle: TextStyle(color: Colors.grey),
+                labelStyle: TextStyle(color: Colors.grey, fontSize: 18.0),
                 contentPadding:
                     EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
                 filled: true,
@@ -132,17 +135,36 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: () async {
                 try {
                   final userCredential = await AuthService().signInWithGoogle();
-                  print("userCredential $userCredential");
                   if (userCredential.user != null) {
-                    final args = {
-                      'email': userCredential.user!.email,
-                    };
-
-                    Navigator.pushReplacementNamed(
-                      context,
-                      '/register',
-                      arguments: args,
+                    final response = await http.get(
+                      Uri.parse(
+                          'http://127.0.0.1:5001/api/check-email?email=${userCredential.user!.email}'),
                     );
+                    if (response.statusCode == 200) {
+                      final data = jsonDecode(response.body);
+                      if (data['exists']) {
+                        final SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        await prefs.setString(
+                            'userEmail', userCredential.user!.email!);
+                        await prefs.setString(
+                            'fullName', userCredential.user!.displayName ?? '');
+                        await prefs.setString(
+                            'imageUrl', userCredential.user!.photoURL ?? '');
+                        Navigator.of(context).pushReplacementNamed('/home');
+                      } else {
+                        final args = {
+                          'email': userCredential.user!.email,
+                        };
+                        Navigator.pushNamed(
+                          context,
+                          '/register',
+                          arguments: args,
+                        );
+                      }
+                    } else {
+                      print('Error consultando si el usuario existe.');
+                    }
                   } else {
                     print(
                         'Inicio de sesión fallido o cancelado por el usuario.');
@@ -172,6 +194,32 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ],
+              ),
+            ),
+            SizedBox(height: 40.0),
+            InkWell(
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  '/register',
+                );
+              },
+              child: Center(
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontSize: 16.0,
+                    ),
+                    children: <TextSpan>[
+                      TextSpan(text: '¿Aún no tienes una cuenta? '),
+                      TextSpan(
+                        text: 'Regístrate',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],

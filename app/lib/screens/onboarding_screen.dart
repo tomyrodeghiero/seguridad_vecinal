@@ -1,6 +1,7 @@
+import 'package:cori/colors.dart';
+import 'package:cori/screens/main_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:seguridad_vecinal/colors.dart';
-import 'package:seguridad_vecinal/screens/main_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
 
@@ -22,6 +23,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
   final PageController _pageController = PageController(initialPage: 0);
   final int _numPages = 3;
+  String _firstName = "Usuario"; // Valor por defecto
+
+  _loadUserFirstName() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    print("prefs -> $prefs");
+    final String fullName = prefs.getString('fullName') ?? '';
+    setState(() {
+      _firstName = fullName.split(' ')[0];
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserFirstName();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +58,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 },
                 children: [
                   OnboardingContent(
-                    title: 'Bienvenido Juan',
+                    title: 'Bienvenido $_firstName',
                     description:
                         'Cori es una aplicación que te permitirá sentirte más seguro en tu ciudad',
                     currentPage: _currentPage,
@@ -212,12 +229,13 @@ class OnboardingContent extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 60.0),
           child: Text(
             description,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 22.0,
+              height: 1.15,
             ),
           ),
         ),

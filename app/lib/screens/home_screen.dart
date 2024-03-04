@@ -1,11 +1,124 @@
-import 'package:flutter/material.dart';
-import 'package:seguridad_vecinal/colors.dart';
-import 'package:seguridad_vecinal/components/custom_drawer.dart';
-import 'package:seguridad_vecinal/screens/community_post_screen.dart';
-import 'package:seguridad_vecinal/screens/notifications_screen.dart';
-import 'package:seguridad_vecinal/screens/post_screen.dart';
+import 'dart:convert';
 
-class HomeScreen extends StatelessWidget {
+import 'package:cori/components/custom_bottom_nav_bar.dart';
+import 'package:cori/screens/community_screen.dart';
+import 'package:cori/screens/map_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:cori/colors.dart';
+import 'package:cori/components/custom_drawer.dart';
+import 'package:cori/screens/community_post_screen.dart';
+import 'package:cori/screens/notifications_screen.dart';
+import 'package:cori/screens/post_screen.dart';
+import 'package:http/http.dart' as http;
+
+class Report {
+  final String title;
+  final List<String> description;
+  final String neighborhood;
+  final DateTime timestamp;
+  final List<String> images;
+  final String senderEmail;
+  final String senderProfileImage;
+
+  Report({
+    required this.title,
+    required this.description,
+    required this.neighborhood,
+    required this.timestamp,
+    required this.images,
+    required this.senderEmail,
+    required this.senderProfileImage,
+  });
+
+  factory Report.fromJson(Map<String, dynamic> json) {
+    var descriptionData = json['description'];
+    List<String> descriptionList;
+    if (descriptionData is String) {
+      descriptionList = [descriptionData];
+    } else if (descriptionData is List) {
+      descriptionList = List<String>.from(descriptionData);
+    } else {
+      descriptionList = [];
+    }
+
+    return Report(
+      title: json['title'] ?? 'Título predeterminado',
+      description: descriptionList,
+      neighborhood: json['neighborhood'] ?? 'Barrio predeterminado',
+      timestamp: json['timestamp'] != null
+          ? DateTime.parse(json['timestamp'])
+          : DateTime.now(),
+      images: json['images'] != null ? List<String>.from(json['images']) : [],
+      senderEmail: json['senderEmail'] ?? 'correo@predeterminado.com',
+      senderProfileImage: json['senderProfileImage'] ?? '',
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
+  List<Report> reports = [];
+
+  Future<void> fetchReports() async {
+    print('Fetching reports...');
+    final response =
+        await http.get(Uri.parse('http://127.0.0.1:5001/api/get-reports'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> reportsJson = json.decode(response.body);
+      setState(() {
+        reports = reportsJson.map((json) => Report.fromJson(json)).toList();
+      });
+    } else {
+      print('Failed to load reports: ${response.statusCode}');
+    }
+  }
+
+  void _onItemTapped(int index) {
+    switch (index) {
+      case 0:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+        break;
+      case 1:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MapScreen()),
+        );
+        break;
+      case 2:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => CommunityScreen()),
+        );
+        break;
+    }
+  }
+
+  void _navigateAndDisplaySelection(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PostScreen()),
+    );
+
+    if (result == true) {
+      fetchReports();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchReports();
+  }
+
   String getAvatarAsset(int index) {
     switch (index) {
       case 0:
@@ -93,32 +206,28 @@ class HomeScreen extends StatelessWidget {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: 3,
+                itemCount: reports.length,
                 itemBuilder: (context, index) {
-                  String newsTitle;
-                  String newsSubtitle;
-                  String imageAsset = getImageAsset(index);
-                  bool hasImage = imageAsset.isNotEmpty;
-                  if (index == 0) {
-                    newsTitle = 'Juan Perez';
-                    newsSubtitle =
-                        'Apuñalaron a un menor en el parque Sarmiento para robarle el télefono. El chico fue llevado al hospital en grave estado.';
-                  } else if (index == 1) {
-                    newsTitle = 'Tobias Gonzales';
-                    newsSubtitle =
-                        'Entraron a robar un negocio en la calle Sobremonte. Rompieron todos los vidrios para poder ingresar. Cortaron la calle.';
-                  } else {
-                    newsTitle = 'Ariel Molina';
-                    newsSubtitle =
-                        'Muere Marta Perez, la señora que había sido internada después que la tiraron de la moto para robarle.';
-                  }
+                  Report report = reports[index];
+                  String fullDescription =
+                      report.description.join(" "); // Une las descripciones
+
+                  String firstImage =
+                      report.images.isNotEmpty ? report.images[0] : '';
 
                   return InkWell(
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => CommunityPostScreen()),
+                          builder: (context) => CommunityPostScreen(
+                            senderEmail: report.senderEmail,
+                            title: report.title,
+                            description: report.description.join(" "),
+                            images: report.images,
+                            timestamp: report.timestamp,
+                          ),
+                        ),
                       );
                     },
                     child: Container(
@@ -126,10 +235,8 @@ class HomeScreen extends StatelessWidget {
                           border: index > 0
                               ? Border(
                                   top: BorderSide(
-                                      width: 1.0,
-                                      color: Colors
-                                          .grey), // Solo el primer elemento tendrá borde superior
-                                ) // No aplica ningún borde si el índice es mayor que 0
+                                      width: 1.0, color: Colors.grey),
+                                )
                               : null),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
@@ -141,8 +248,8 @@ class HomeScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 CircleAvatar(
-                                  backgroundImage: AssetImage(getAvatarAsset(
-                                      index)), // Usa la función para obtener el avatar
+                                  backgroundImage:
+                                      NetworkImage(report.senderProfileImage),
                                   radius: 18,
                                 ),
                                 SizedBox(width: 16),
@@ -152,7 +259,8 @@ class HomeScreen extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        newsTitle,
+                                        report
+                                            .senderEmail, // Cambiado a senderEmail para un ejemplo
                                         style: TextStyle(
                                           color: AppColors.purple500,
                                           fontWeight: FontWeight.w600,
@@ -161,7 +269,7 @@ class HomeScreen extends StatelessWidget {
                                       ),
                                       SizedBox(height: 4),
                                       Text(
-                                        newsSubtitle,
+                                        fullDescription, // Usa la descripción completa
                                         style: TextStyle(
                                           color: Colors.black,
                                           fontSize: 16.0,
@@ -174,7 +282,8 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            if (hasImage)
+                            if (report
+                                .images.isNotEmpty) // Verifica si hay imágenes
                               Padding(
                                 padding: const EdgeInsets.only(
                                     left: 48.0, top: 8.0, right: 16.0),
@@ -182,10 +291,11 @@ class HomeScreen extends StatelessWidget {
                                   widthFactor: 1.0,
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(40.0),
-                                    child: Image.asset(
-                                      imageAsset,
+                                    child: Image.network(
+                                      // Cambiado a Image.network para cargar imágenes de la red
+                                      firstImage,
                                       fit: BoxFit.cover,
-                                      height: 160.0,
+                                      height: 164.0,
                                     ),
                                   ),
                                 ),
@@ -204,8 +314,6 @@ class HomeScreen extends StatelessWidget {
                                   Image.asset('assets/marker.png',
                                       width: 20, height: 20),
                                   SizedBox(width: 8),
-                                  Text('107',
-                                      style: TextStyle(color: Colors.black)),
                                 ],
                               ),
                             ),
@@ -223,10 +331,7 @@ class HomeScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         elevation: 0,
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => PostScreen()),
-          );
+          _navigateAndDisplaySelection(context);
         },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(30.0)),
@@ -236,6 +341,10 @@ class HomeScreen extends StatelessWidget {
           height: 26.0,
         ),
         backgroundColor: AppColors.purple500,
+      ),
+      bottomNavigationBar: CustomBottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
     );
   }
