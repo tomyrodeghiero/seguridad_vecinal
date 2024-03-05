@@ -59,7 +59,7 @@ class _PostScreenState extends State<PostScreen> {
           msg: "No se encontró el email del usuario.",
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
+          timeInSecForIosWeb: 2,
           backgroundColor: Colors.red,
           textColor: Colors.white,
           fontSize: 16.0,
