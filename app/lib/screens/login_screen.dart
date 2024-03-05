@@ -149,8 +149,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             'userEmail', userCredential.user!.email!);
                         await prefs.setString(
                             'fullName', userCredential.user!.displayName ?? '');
-                        await prefs.setString(
-                            'imageUrl', userCredential.user!.photoURL ?? '');
+                        await prefs.setString('googlePhotoURL',
+                            userCredential.user!.photoURL ?? '');
                         Navigator.of(context).pushReplacementNamed('/home');
                       } else {
                         final args = {
@@ -204,23 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   '/register',
                 );
               },
-              child: Center(
-                child: RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: 16.0,
-                    ),
-                    children: <TextSpan>[
-                      TextSpan(text: '¿Aún no tienes una cuenta? '),
-                      TextSpan(
-                        text: 'Regístrate',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              child: Center(),
             ),
           ],
         ),

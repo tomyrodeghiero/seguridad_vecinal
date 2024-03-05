@@ -1,8 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:cori/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
+  @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  String _fullName = 'Nombre no disponible';
+  String _imageUrl = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _fullName = prefs.getString('fullName') ?? 'Nombre no disponible';
+      _imageUrl = prefs.getString('imageUrl') ?? '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,33 +67,8 @@ class ProfileScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CircleAvatar(
-                              backgroundColor: Colors.grey,
-                              radius: 50.0, // Tamaño aumentado
-                              child: Text(
-                                'L',
-                                style: TextStyle(
-                                    fontSize:
-                                        60.0, // También puedes ajustar el tamaño de la fuente si lo deseas
-                                    color: Colors.white),
-                              ),
-                            ),
                             SizedBox(
                               height: 12.0,
-                            ),
-                            Text(
-                              'Luciana',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              'González',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
                             ),
                             TextButton(
                               onPressed: () {
@@ -171,8 +169,14 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         ),
                         CircleAvatar(
-                          radius: 50, // Tamaño del CircleAvatar
-                          backgroundColor: Colors.white,
+                          radius: 50,
+                          backgroundColor: Colors.grey,
+                          backgroundImage: _imageUrl.isNotEmpty
+                              ? NetworkImage(_imageUrl)
+                              : null,
+                          child: _imageUrl.isEmpty
+                              ? Icon(Icons.person, size: 50)
+                              : null,
                         ),
                         Positioned(
                           bottom: 0,
@@ -204,7 +208,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              'Luciana González',
+              _fullName,
               style: TextStyle(
                   fontSize: 24.0,
                   fontWeight: FontWeight.w500,
@@ -212,7 +216,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             SizedBox(height: 28.0),
             Text(
-              'Ciudad de Río Cuarto, Córdoba.\nMiembro desde Diciembre 2023.',
+              'Ciudad de Río Cuarto, Córdoba.\nMiembro desde Marzo 2024.',
               style: TextStyle(color: Colors.black, fontSize: 18.0),
               textAlign: TextAlign
                   .center, // Opcional: Alinea el texto al centro si lo prefieres

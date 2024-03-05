@@ -7,17 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:79192326921:android:3bbf4e8de71a8a851389d8",
+        "mobilesdk_app_id": "1:79192326921:android:82f9528446f1c9351389d8",
         "android_client_info": {
-          "package_name": "com.example.seguridadVecinal"
+          "package_name": "com.example.cori"
         }
       },
       "oauth_client": [
         {
-          "client_id": "79192326921-kc66ti21o9p1oeqkstbqem0h6fcsjjjq.apps.googleusercontent.com",
+          "client_id": "79192326921-3020hb6b9i1jiol6evokq2m054iti8ch.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.seguridadVecinal",
+            "package_name": "com.example.cori",
             "certificate_hash": "0fb89d4048428adf99438f5312e2b29ce97b34a7"
           }
         },

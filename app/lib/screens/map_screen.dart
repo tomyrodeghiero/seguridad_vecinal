@@ -1,11 +1,49 @@
-import 'package:cori/components/custom_bottom_nav_bar.dart';
-import 'package:cori/screens/community_screen.dart';
-import 'package:cori/screens/home_screen.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:cori/colors.dart';
 import 'package:cori/components/custom_drawer.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+LatLng getLocationForNeighborhood(String neighborhood) {
+  switch (neighborhood) {
+    case 'Micro centro':
+      return LatLng(-33.1232, -64.3493);
+    case 'Banda Norte':
+      return LatLng(-33.1132, -64.3293);
+    case 'Alberdi':
+      return LatLng(-33.1347184, -64.3512701);
+    case 'Bimaco':
+      return LatLng(-33.1369584, -64.3713441);
+    case 'Barrio Jardín':
+      return LatLng(-33.0897845, -64.3384708);
+    default:
+      return LatLng(-33.106862, -64.347241);
+  }
+}
+
+class NeighborhoodReport {
+  String neighborhood;
+  int reportsCount;
+  LatLng location;
+
+  NeighborhoodReport({
+    required this.neighborhood,
+    required this.reportsCount,
+    required this.location,
+  });
+
+  factory NeighborhoodReport.fromJson(Map<String, dynamic> json) {
+    return NeighborhoodReport(
+      neighborhood: json['neighborhood'],
+      reportsCount: json['reportsCount'],
+      location: getLocationForNeighborhood(json['neighborhood']),
+    );
+  }
+}
 
 class RiskZone {
   List<LatLng> points;
@@ -28,39 +66,48 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  int _selectedIndex = 1;
+  String _fullName = '';
+  String _imageUrl = '';
+
+  Future<void> _loadUserData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _fullName = prefs.getString('fullName') ?? 'Nombre no disponible';
+      _imageUrl = prefs.getString('imageUrl') ?? '';
+    });
+  }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Marker> markers = [];
   List<Polygon> riskZones = [];
   MapContentType _contentType = MapContentType.none;
   List<CircleMarker> circleMarkers = [];
+  List<NeighborhoodReport> neighborhoodReports = [];
 
-  void _onItemTapped(int index) {
-    switch (index) {
-      case 0:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-        );
-        break;
-      case 1:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => MapScreen()),
-        );
-        break;
-      case 2:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => CommunityScreen()),
-        );
-        break;
+  Future<void> fetchNeighborhoodReports() async {
+    final url = Uri.parse('http://127.0.0.1:5001/api/get-reports-summary');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final List<dynamic> fetchedReports = json.decode(response.body);
+        setState(() {
+          neighborhoodReports = fetchedReports
+              .map((reportJson) => NeighborhoodReport.fromJson(reportJson))
+              .toList();
+        });
+      } else {
+        print('Failed to fetch neighborhood reports: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching neighborhood reports: $e');
     }
   }
 
   @override
   void initState() {
     super.initState();
+    _loadUserData();
+    fetchNeighborhoodReports();
   }
 
   void _loadNeighborhoodReports() {
@@ -69,50 +116,62 @@ class _MapScreenState extends State<MapScreen> {
       return;
     }
 
+    final List<Color> levelColors = [
+      Colors.red,
+      Colors.amber,
+      Colors.orange,
+      Colors.lightGreen,
+      Colors.green,
+    ];
+
+    neighborhoodReports
+        .sort((a, b) => b.reportsCount.compareTo(a.reportsCount));
+
+    Map<int, Color> reportsColorMapping = {};
+
+    int previousReportsCount = -1;
+    Color previousColor = Colors.grey;
+    for (int i = 0; i < neighborhoodReports.length; i++) {
+      final report = neighborhoodReports[i];
+      if (report.reportsCount != previousReportsCount) {
+        // Asignar color basado en la posición, si se excede la cantidad de colores definidos, usar el más intenso
+        Color color =
+            i < levelColors.length ? levelColors[i] : levelColors.last;
+        reportsColorMapping[report.reportsCount] = color;
+        previousColor = color;
+      } else {
+        // Si la cantidad de reportes es igual a la anterior, asignar gris
+        reportsColorMapping[report.reportsCount] = Colors.grey;
+        previousColor = Colors.grey;
+      }
+      previousReportsCount = report.reportsCount;
+    }
+
     setState(() {
       markers = [];
       riskZones = [];
       circleMarkers = [];
 
-      List<String> titles = ["Microcentro", "Banda Norte", "Alberdi", "Bimaco"];
-      List<int> reports = [20, 10, 15, 25];
+      for (var report in neighborhoodReports) {
+        Color color = reportsColorMapping[report.reportsCount] ??
+            Colors.grey; // Usar gris como color por defecto
 
-      List<Color> colors = [
-        Colors.green,
-        Colors.amberAccent,
-        Colors.orange,
-        Colors.red
-      ];
-
-      List<LatLng> reportLocations = [
-        LatLng(-33.1232, -64.3493),
-        LatLng(-33.1132, -64.3293),
-        LatLng(-33.1347184, -64.3512701),
-        LatLng(-33.1369584, -64.3713441),
-      ];
-
-      circleMarkers = reportLocations.asMap().entries.map((entry) {
-        int idx = entry.key;
-        LatLng loc = entry.value;
-
-        return CircleMarker(
-          point: loc,
-          color: colors[idx].withOpacity(0.5),
-          borderColor: colors[idx],
-          borderStrokeWidth: 1,
-          radius: 60,
+        circleMarkers.add(
+          CircleMarker(
+            point: report.location,
+            color: color.withOpacity(0.5),
+            borderColor: color,
+            borderStrokeWidth: 1,
+            radius: 60, // O ajusta según la cantidad de reportes si prefieres
+          ),
         );
-      }).toList();
 
-      markers.addAll(reportLocations.asMap().entries.map((entry) {
-        int idx = entry.key;
-        LatLng loc = entry.value;
-
-        return Marker(
-          width: 200.0,
-          height: 80.0,
-          point: loc,
-          child: Container(
+        markers.add(
+          Marker(
+            width: 200.0,
+            height: 80.0,
+            point: report.location,
+            child: Container(
               alignment: Alignment.center,
               child: FittedBox(
                 child: RichText(
@@ -120,7 +179,7 @@ class _MapScreenState extends State<MapScreen> {
                   text: TextSpan(
                     children: <TextSpan>[
                       TextSpan(
-                        text: "${titles[idx]}\n",
+                        text: "${report.neighborhood}\n",
                         style: TextStyle(
                           fontSize: 16.0,
                           color: Colors.white,
@@ -135,9 +194,9 @@ class _MapScreenState extends State<MapScreen> {
                         ),
                       ),
                       TextSpan(
-                        text: "${reports[idx]} reportes",
+                        text: "${report.reportsCount} reportes",
                         style: TextStyle(
-                          backgroundColor: colors[idx],
+                          backgroundColor: color,
                           fontSize: 14.0,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -153,9 +212,11 @@ class _MapScreenState extends State<MapScreen> {
                     ],
                   ),
                 ),
-              )),
+              ),
+            ),
+          ),
         );
-      }).toList());
+      }
 
       _contentType = MapContentType.neighborhoodReports;
     });
@@ -236,108 +297,108 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: Text(
-            'Mapa',
-            style: TextStyle(
-              fontSize: 22.0,
-              color: AppColors.purple500,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          iconTheme: IconThemeData(color: Colors.black),
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: () {
-              _scaffoldKey.currentState?.openDrawer();
-            },
+      drawer: CustomDrawer(
+        fullName: _fullName,
+        imageUrl: _imageUrl,
+      ),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text(
+          'Mapa',
+          style: TextStyle(
+            fontSize: 22.0,
+            color: AppColors.purple500,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        drawer: CustomDrawer(),
-        body: Stack(
-          children: [
-            FlutterMap(
-              options: MapOptions(
-                center: LatLng(-33.1232, -64.3493),
-                zoom: 13.0,
-                interactiveFlags:
-                    InteractiveFlag.pinchZoom | InteractiveFlag.drag,
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  subdomains: ['a', 'b', 'c'],
-                ),
-                PolygonLayer(polygons: riskZones),
-                CircleLayer(circles: circleMarkers),
-                MarkerLayer(markers: markers),
-              ],
+        iconTheme: IconThemeData(color: Colors.black),
+        elevation: 0,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.menu, color: Colors.black),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          FlutterMap(
+            options: MapOptions(
+              center: LatLng(-33.1232, -64.3493),
+              zoom: 13.0,
+              interactiveFlags:
+                  InteractiveFlag.pinchZoom | InteractiveFlag.drag,
             ),
-            Positioned(
-                bottom: 20.0,
-                left: 20.0,
-                child: Container(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                    decoration: BoxDecoration(
-                      color: AppColors.purple500,
-                      borderRadius: BorderRadius.circular(16.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 8.0,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(0),
-                          child: Text(
-                            'Filtros',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                            ),
+            children: [
+              TileLayer(
+                urlTemplate:
+                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                subdomains: ['a', 'b', 'c'],
+              ),
+              PolygonLayer(polygons: riskZones),
+              CircleLayer(circles: circleMarkers),
+              MarkerLayer(markers: markers),
+            ],
+          ),
+          Positioned(
+              bottom: 20.0,
+              left: 20.0,
+              child: Container(
+                  padding:
+                      EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  decoration: BoxDecoration(
+                    color: AppColors.purple500,
+                    borderRadius: BorderRadius.circular(16.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8.0,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(0),
+                        child: Text(
+                          'Filtros',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        Wrap(
-                          spacing: 16.0,
-                          children: [
-                            _buildFloatingButton(
-                              icon: Icons.warning_amber_rounded,
-                              label: 'Reportes',
-                              onTap: _loadNeighborhoodReports,
-                              contentType: MapContentType.neighborhoodReports,
-                            ),
-                            _buildFloatingButton(
-                              icon: Icons.local_police,
-                              label: 'Comisarías',
-                              onTap: _loadPoliceStations,
-                              contentType: MapContentType.policeStations,
-                            ),
-                            _buildFloatingButton(
-                              icon: Icons.local_hospital,
-                              label: 'Salud',
-                              onTap: _loadHealthLocations,
-                              contentType: MapContentType.healthStations,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ))),
-          ],
-        ),
-        bottomNavigationBar: CustomBottomNavBar(
-          selectedIndex: _selectedIndex,
-          onItemTapped: _onItemTapped,
-        ));
+                      ),
+                      Wrap(
+                        spacing: 16.0,
+                        children: [
+                          _buildFloatingButton(
+                            icon: Icons.warning_amber_rounded,
+                            label: 'Reportes',
+                            onTap: _loadNeighborhoodReports,
+                            contentType: MapContentType.neighborhoodReports,
+                          ),
+                          _buildFloatingButton(
+                            icon: Icons.local_police,
+                            label: 'Comisarías',
+                            onTap: _loadPoliceStations,
+                            contentType: MapContentType.policeStations,
+                          ),
+                          _buildFloatingButton(
+                            icon: Icons.local_hospital,
+                            label: 'Salud',
+                            onTap: _loadHealthLocations,
+                            contentType: MapContentType.healthStations,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ))),
+        ],
+      ),
+    );
   }
 
   Widget _buildFloatingButton({

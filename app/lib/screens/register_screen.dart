@@ -116,6 +116,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 initialValue: email,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
+                  enabled: false,
                   hintText: 'Ingresa tu Email',
                   hintStyle: TextStyle(color: Colors.grey, fontSize: 18.0),
                   floatingLabelBehavior: FloatingLabelBehavior.always,

@@ -67,6 +67,23 @@ class _PostScreenState extends State<PostScreen> {
         return;
       }
 
+      if (_selectedNeighborhood == null ||
+          _textController.text.isEmpty ||
+          _descriptionController.text.isEmpty) {
+        _isLoading = false;
+        Fluttertoast.showToast(
+          msg:
+              "Por favor, completa todos los campos requeridos: barrio, título y descripción.",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        return;
+      }
+
       var uri = Uri.parse('http://127.0.0.1:5001/api/create-report');
       var request = http.MultipartRequest('POST', uri);
 
@@ -149,8 +166,8 @@ class _PostScreenState extends State<PostScreen> {
             Expanded(
               child: DropdownButtonFormField<String>(
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(
-                      vertical: 0.0, horizontal: 12.0), // Ajusta este valor
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(28.0),
                     borderSide: BorderSide(color: AppColors.purple500),
@@ -158,8 +175,9 @@ class _PostScreenState extends State<PostScreen> {
                 ),
                 hint: Text(
                   '¿Dónde sucede?',
-                  style: TextStyle(fontSize: 18.0),
+                  style: TextStyle(fontSize: 16.0), // Aumentado de 18.0 a 22.0
                 ),
+                borderRadius: BorderRadius.circular(20.0),
                 value: _selectedNeighborhood,
                 onChanged: (newValue) {
                   setState(() {
@@ -168,41 +186,50 @@ class _PostScreenState extends State<PostScreen> {
                 },
                 items: <String>[
                   'Alberdi',
-                  'Bimaco',
                   'Banda Norte',
-                  'Micro centro'
+                  'Barrio Jardín',
+                  'Bimaco',
+                  'Micro centro',
+                  'Otro',
                 ].map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value, style: TextStyle(fontSize: 14.0)),
+                    child: Text(value, style: TextStyle(fontSize: 16.0)),
                   );
                 }).toList(),
               ),
             ),
-            _isLoading
-                ? CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  )
-                : TextButton(
-                    onPressed: _isLoading
-                        ? null
-                        : _publishPost, // Deshabilita el botón mientras carga
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(50.0),
-                      child: Container(
+            SizedBox(
+              width: 20,
+            ),
+            SizedBox(
+              width: _isLoading
+                  ? 40
+                  : 120, // Especifica un ancho fijo para el botón
+              child: _isLoading
+                  ? CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.purple500), // Color púrpura para el spinner
+                    )
+                  : TextButton(
+                      onPressed: _publishPost, // Tu lógica para publicar
+                      style: TextButton.styleFrom(
                         padding: EdgeInsets.symmetric(
                             vertical: 10.0, horizontal: 16.0),
-                        color: AppColors.purple500,
-                        child: Text(
-                          'Publicar',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 18.0),
+                        backgroundColor: AppColors.purple500,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50.0)),
+                      ),
+                      child: Text(
+                        'Publicar',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18.0,
                         ),
                       ),
                     ),
-                  ),
+            ),
           ],
         ),
       ),
@@ -219,8 +246,8 @@ class _PostScreenState extends State<PostScreen> {
                       Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: Container(
-                          width: 36.0,
-                          height: 36.0,
+                          width: 40.0,
+                          height: 40.0,
                           decoration: BoxDecoration(
                             color: Colors.grey[
                                 400], // Puedes quitar este color si siempre tendrás una imagen
@@ -240,7 +267,12 @@ class _PostScreenState extends State<PostScreen> {
                           decoration: InputDecoration(
                             hintText: '¿Qué está pasando?',
                             border: InputBorder.none,
+                            hintStyle: TextStyle(),
                           ),
+                          style: TextStyle(
+                              fontSize: 22.0,
+                              color: AppColors.purple500,
+                              fontWeight: FontWeight.w700),
                           autofocus: true,
                         ),
                       ),
@@ -252,11 +284,10 @@ class _PostScreenState extends State<PostScreen> {
                       controller: _descriptionController,
                       decoration: InputDecoration(
                         labelText: 'Describe lo que sucedió...',
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
                         border: InputBorder.none,
                         labelStyle: TextStyle(
                             color: Colors.black87,
-                            fontSize: 28.0,
+                            fontSize: 22.0,
                             fontWeight: FontWeight.w500),
                       ),
                       maxLines:

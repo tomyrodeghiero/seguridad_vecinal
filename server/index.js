@@ -1,14 +1,14 @@
 require('dotenv').config();
 const fs = require('fs');
 const { google } = require('googleapis');
-const formidable = require('formidable');
-const express = require('express');
 const User = require('./models/User');
 const Token = require('./models/Token');
 const Report = require('./models/Report');
 const Notification = require('./models/Notification');
 const connectDB = require('./db/index');
 const cloudinary = require('cloudinary').v2;
+const formidable = require('formidable');
+const express = require('express');
 
 // Configuración de Cloudinary
 cloudinary.config({
@@ -96,10 +96,13 @@ app.post('/api/register-user', async (req, res) => {
     const form = new formidable.IncomingForm();
 
     form.parse(req, async (err, fields, files) => {
+        console.log(fields); // Ahora puedes acceder a los campos aquí
+        console.log(files); // Y los archivos aquí
         if (err) {
             console.error("Error parsing the form", err);
             return res.status(500).send("Error processing the form");
         }
+
 
         // Extrae y asegura que cada campo sea una cadena
         const email = Array.isArray(fields.email) ? fields.email[0] : fields.email;
@@ -109,9 +112,12 @@ app.post('/api/register-user', async (req, res) => {
         const age = parseInt(Array.isArray(fields.age) ? fields.age[0] : fields.age, 10);
         const fullName = Array.isArray(fields.fullName) ? fields.fullName[0] : fields.fullName;
 
+        console.log(email, password, neighborhood, gender, age, fullName);
+
         let imageUrl = '';
         if (files.image) {
             const imageFile = Array.isArray(files.image) ? files.image[0] : files.image;
+            console.log("imageFile", imageFile);
             try {
                 const result = await uploadToCloudinary(imageFile.filepath);
                 imageUrl = result;
@@ -134,13 +140,42 @@ app.post('/api/register-user', async (req, res) => {
 
             await newUser.save();
 
-            // Modifica aquí para enviar los datos del usuario en la respuesta
             const userData = {
                 userEmail: newUser.email,
                 fullName: newUser.fullName,
-                imageUrl: newUser.imageUrl
+                imageUrl: newUser.imageUrl,
             };
             console.log("userData->", userData)
+
+            try {
+                // Obtén todos los reportes existentes
+                const reports = await Report.find({});
+
+                // Para cada reporte, crea una nueva notificación para el nuevo usuario
+                await Promise.all(reports.map(async (report) => {
+                    const newNotification = new Notification({
+                        message: `${report.title}`, // Personaliza este mensaje como prefieras
+                        recipientEmail: newUser.email, // El email del nuevo usuario
+                        title: report.title,
+                        description: report.description,
+                        neighborhood: report.neighborhood,
+                        timestamp: new Date(), // O puedes usar report.timestamp si prefieres
+                        images: report.images,
+                        senderEmail: report.senderEmail,
+                        senderProfileImage: report.senderProfileImage,
+                    });
+
+                    // Guarda la notificación
+                    await newNotification.save();
+                }));
+
+                console.log("Notificaciones de reportes existentes creadas para el nuevo usuario.");
+            } catch (error) {
+                console.error("Error creando notificaciones para el nuevo usuario", error);
+                // Considera cómo manejar este error. ¿Quieres que falle todo el proceso de registro?
+                // ¿O simplemente loguear el error y continuar?
+            }
+
             res.status(201).json({
                 message: 'Usuario registrado con éxito',
                 data: userData,
@@ -152,18 +187,15 @@ app.post('/api/register-user', async (req, res) => {
     });
 });
 
-
 // Cloudinary
-async function uploadToCloudinary(filePath, resourceType = 'auto') {
+async function uploadToCloudinary(filePath) {
     try {
-        const result = await cloudinary.uploader.upload(filePath, {
-            resource_type: resourceType,
-            folder: 'cori',
-        });
-        return result.secure_url;
+        let result = await cloudinary.uploader.upload(filePath, { folder: 'cori', });
+        console.log("result.url", result.url);
+        return result.url;
     } catch (error) {
-        console.error("Error uploading file to Cloudinary", error);
-        throw new Error("Error uploading file");
+        console.error("Error uploading image to Cloudinary", error);
+        throw error;
     }
 }
 
@@ -249,6 +281,7 @@ app.post('/api/create-report', async (req, res) => {
 
 app.post('/api/validate-login', async (req, res) => {
     const { email, password } = req.body;
+    console.log("email VL", email)
 
     try {
         const user = await User.findOne({ email, password });
@@ -276,6 +309,7 @@ app.get('/api/check-email', async (req, res) => {
     }
     try {
         const user = await User.findOne({ email });
+        console.log("HAY USER ", user)
         if (user) {
             res.status(200).json({ exists: true });
         } else {
@@ -290,7 +324,16 @@ app.get('/api/check-email', async (req, res) => {
 // Get Reports
 app.get('/api/get-reports', async (req, res) => {
     try {
-        const reports = await Report.find({}).sort({ timestamp: -1 });
+        let reports = await Report.find({}).sort({ timestamp: -1 });
+
+        reports = await Promise.all(reports.map(async (report) => {
+            const user = await User.findOne({ email: report.senderEmail });
+            if (user) {
+                return { ...report.toObject(), senderFullName: user.fullName };
+            }
+            return report.toObject();
+        }));
+
         res.status(200).json(reports);
     } catch (error) {
         console.error("Error fetching reports:", error);
@@ -298,7 +341,7 @@ app.get('/api/get-reports', async (req, res) => {
     }
 });
 
-// Get notifiactions by user
+// Get notifications by user
 app.get('/api/get-notifications', async (req, res) => {
     const { email } = req.query;
 
@@ -356,6 +399,142 @@ app.post('/api/mark-notification-read', async (req, res) => {
         res.status(500).json({ message: "Error actualizando la notificación" });
     }
 });
+
+// Neighboorh
+app.get('/api/get-communities-from-users', async (req, res) => {
+    try {
+        const predefinedNeighborhoods = ["Micro centro", "Alberdi", "Banda Norte", "Bimaco", "Barrio Jardín", "Otro"];
+
+        const communityCounts = await User.aggregate([
+            {
+                $match: {
+                    neighborhood: { $in: predefinedNeighborhoods }
+                }
+            },
+            {
+                $group: {
+                    _id: "$neighborhood",
+                    membersCount: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    neighborhood: "$_id",
+                    membersCount: 1
+                }
+            }
+        ]);
+
+        const countsByNeighborhood = communityCounts.reduce((acc, { neighborhood, membersCount }) => {
+            acc[neighborhood] = membersCount;
+            return acc;
+        }, {});
+
+        const result = predefinedNeighborhoods.map(neighborhood => ({
+            neighborhood,
+            membersCount: countsByNeighborhood[neighborhood] || 0
+        }));
+
+        res.status(200).json(result);
+    } catch (error) {
+        console.error("Error fetching communities from users:", error);
+        res.status(500).send("Error fetching communities from users");
+    }
+});
+
+app.get('/api/get-reports-by-neighborhood', async (req, res) => {
+    const { neighborhood } = req.query;
+
+    if (!neighborhood) {
+        return res.status(400).send({ message: 'El nombre del barrio es requerido.' });
+    }
+
+    try {
+        let reports = await Report.find({ neighborhood: neighborhood }).sort({ timestamp: -1 });
+
+        const enrichedReports = await Promise.all(reports.map(async (report) => {
+            const user = await User.findOne({ email: report.senderEmail });
+            if (user) {
+                return { ...report.toObject(), senderFullName: user.fullName };
+            } else {
+                return report.toObject();
+            }
+        }));
+
+        const response = {
+            neighborhood: neighborhood,
+            reportsCount: enrichedReports.length,
+            reports: enrichedReports
+        };
+
+        res.status(200).json(response);
+    } catch (error) {
+        console.error("Error fetching reports by neighborhood:", error);
+        res.status(500).send("Error al obtener los reportes por barrio.");
+    }
+});
+
+app.get('/api/get-reports-summary', async (req, res) => {
+    const predefinedNeighborhoods = ["Micro centro", "Alberdi", "Banda Norte", "Bimaco", "Barrio Jardín", "Otro"];
+
+    try {
+        const reportsSummary = await Report.aggregate([
+            {
+                $group: {
+                    _id: "$neighborhood",
+                    reportsCount: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    neighborhood: "$_id",
+                    reportsCount: 1
+                }
+            }
+        ]);
+
+        const reportsMap = {};
+        reportsSummary.forEach(report => {
+            reportsMap[report.neighborhood] = report.reportsCount;
+        });
+
+        const fullSummary = predefinedNeighborhoods.map(neighborhood => {
+            return {
+                neighborhood: neighborhood,
+                reportsCount: reportsMap[neighborhood] || 0
+            };
+        });
+
+        res.status(200).json(fullSummary);
+    } catch (error) {
+        console.error("Error fetching reports summary:", error);
+        res.status(500).send("Error al obtener el resumen de los reportes por barrio.");
+    }
+});
+
+// async function deleteAllUsers() {
+//     try {
+//         await User.deleteMany({});
+//         console.log('Todos los usuarios han sido borrados.');
+//     } catch (error) {
+//         console.error('Error borrando los usuarios:', error);
+//     }
+// }
+
+// async function deleteAllReports() {
+//     try {
+//         await Report.deleteMany({});
+//         console.log('Todos los reportes han sido borrados.');
+//     } catch (error) {
+//         console.error('Error borrando los reportes:', error);
+//     }
+// }
+
+// deleteAllReports()
+// deleteAllUsers()
+
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running in port ${PORT}`));

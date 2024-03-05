@@ -5,8 +5,56 @@ import 'package:cori/colors.dart';
 import 'package:cori/screens/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+class ParentWidget extends StatefulWidget {
+  @override
+  _ParentWidgetState createState() => _ParentWidgetState();
+}
+
+class _ParentWidgetState extends State<ParentWidget> {
+  String _fullName = '';
+  String _imageUrl = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _fullName = prefs.getString('fullName') ?? 'Nombre no disponible';
+      _imageUrl = prefs.getString('imageUrl') ?? '';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: CustomDrawer(
+        fullName: _fullName,
+        imageUrl: _imageUrl,
+      ),
+    );
+  }
+}
+
 class CustomDrawer extends StatelessWidget {
-  const CustomDrawer({Key? key}) : super(key: key);
+  final String fullName;
+  final String imageUrl;
+
+  const CustomDrawer({
+    Key? key,
+    required this.fullName,
+    required this.imageUrl,
+  }) : super(key: key);
+
+  Future<Map<String, dynamic>> getUserData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String fullName = prefs.getString('fullName') ?? 'Nombre no disponible';
+    String imageUrl = prefs.getString('imageUrl') ?? '';
+    return {'fullName': fullName, 'imageUrl': imageUrl};
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,23 +94,24 @@ class CustomDrawer extends StatelessWidget {
                           children: [
                             CircleAvatar(
                               backgroundColor: Colors.white,
+                              backgroundImage: imageUrl.isNotEmpty
+                                  ? NetworkImage(imageUrl)
+                                  : null,
                               radius: 50,
+                              child: imageUrl.isEmpty
+                                  ? Icon(Icons.person, size: 50)
+                                  : null,
                             ),
                             SizedBox(height: 12.0),
-                            Text(
-                              'Luciana',
-                              style: TextStyle(
-                                  fontSize: 24.0,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                            Text(
-                              'González',
-                              style: TextStyle(
-                                  fontSize: 24.0,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500),
-                            ),
+                            ...fullName.split(' ').map(
+                                  (namePart) => Text(
+                                    namePart,
+                                    style: TextStyle(
+                                        fontSize: 24.0,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
                             TextButton(
                                 onPressed: () {
                                   Navigator.push(

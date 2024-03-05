@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -64,7 +63,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.CENTER,
             timeInSecForIosWeb: 2,
-            backgroundColor: Colors.orange,
+            backgroundColor: Colors.red,
             textColor: Colors.white,
             fontSize: 18.0,
           );
@@ -112,7 +111,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
           Navigator.of(context).pushNamed('/onboarding');
         } else {
           Fluttertoast.showToast(
-            msg: "❌ Error al registrar el usuario: ${response.body}",
+            msg: "❌ Error al registrar el usuario.",
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.CENTER,
             timeInSecForIosWeb: 1,
@@ -299,10 +298,11 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                                 inputDecorationTheme: InputDecorationTheme(
                                   border: InputBorder.none,
                                   contentPadding: EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 10.0),
+                                      vertical: 10.0, horizontal: 8.0),
                                 ),
                               ),
                               child: DropdownButtonFormField<String>(
+                                borderRadius: BorderRadius.circular(20.0),
                                 decoration: InputDecoration(),
                                 hint: Text('F | M | O',
                                     style: TextStyle(color: Colors.grey)),
@@ -310,9 +310,9 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                                 icon: Icon(Icons.arrow_drop_down,
                                     color: Colors.purple),
                                 items: <String>[
-                                  'Femenino',
-                                  'Masculino',
-                                  'No decir'
+                                  '♀️ Femenino',
+                                  '♂️ Masculino',
+                                  '⚥ No decir'
                                 ].map((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
@@ -416,9 +416,11 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                   value: selectedNeighborhood,
                   items: <String>[
                     'Alberdi',
-                    'Bimaco',
+                    'Barrio Jardín',
                     'Banda Norte',
+                    'Bimaco',
                     'Micro centro',
+                    'Otro',
                   ].map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,

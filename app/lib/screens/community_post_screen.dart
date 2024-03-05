@@ -5,9 +5,11 @@ import 'package:cori/colors.dart';
 class CommunityPostScreen extends StatelessWidget {
   final String senderEmail;
   final String title;
-  final String description;
+  final List<String> description;
   final List<String> images;
   final DateTime timestamp;
+  final String senderProfileImage;
+  final String senderFullName;
 
   CommunityPostScreen({
     required this.senderEmail,
@@ -15,6 +17,8 @@ class CommunityPostScreen extends StatelessWidget {
     required this.description,
     required this.images,
     required this.timestamp,
+    required this.senderProfileImage,
+    required this.senderFullName,
   });
 
   @override
@@ -35,9 +39,10 @@ class CommunityPostScreen extends StatelessWidget {
         title: Text(
           'Post Comunidad',
           style: TextStyle(
-              color: AppColors.purple500,
-              fontWeight: FontWeight.w600,
-              fontSize: 22.0),
+            color: AppColors.purple500,
+            fontWeight: FontWeight.w600,
+            fontSize: 22.0,
+          ),
         ),
         centerTitle: true,
       ),
@@ -46,6 +51,7 @@ class CommunityPostScreen extends StatelessWidget {
           decoration: BoxDecoration(
               border: Border(
             top: BorderSide(width: 1.0, color: Colors.grey),
+            bottom: BorderSide(width: 1.0, color: Colors.grey),
           )),
           child: Padding(
             padding:
@@ -57,8 +63,7 @@ class CommunityPostScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CircleAvatar(
-                      backgroundImage: AssetImage(
-                          'assets/avatar-01.png'), // Usa la función para obtener el avatar
+                      backgroundImage: NetworkImage(senderProfileImage),
                       radius: 18,
                     ),
                     SizedBox(width: 16),
@@ -67,7 +72,7 @@ class CommunityPostScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            senderEmail,
+                            senderFullName,
                             style: TextStyle(
                               color: AppColors.purple500,
                               fontWeight: FontWeight.w600,
@@ -76,7 +81,7 @@ class CommunityPostScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            description,
+                            description.join(" "),
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 16.0,
@@ -89,25 +94,22 @@ class CommunityPostScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: 48.0,
-                      top: 8.0,
-                      right: 16.0), // Agrega padding a la derecha también
-                  child: FractionallySizedBox(
-                    widthFactor:
-                        1.0, // El ancho de la imagen será el 90% del ancho del contenedor
-                    child: ClipRRect(
-                      borderRadius:
-                          BorderRadius.circular(40.0), // Borde redondeado
-                      child: Image.asset(
-                        'assets/image-01.png',
-                        fit: BoxFit.cover,
-                        height: 164.0,
-                      ),
-                    ),
-                  ),
-                ),
+                ...images
+                    .map((image) => Padding(
+                          padding: const EdgeInsets.only(
+                              left: 48.0, top: 8.0, right: 16.0),
+                          child: ClipRRect(
+                            borderRadius:
+                                BorderRadius.circular(40.0), // Borde redondeado
+                            child: Image.network(
+                              image,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              height: 164.0,
+                            ),
+                          ),
+                        ))
+                    .toList(),
                 Padding(
                   padding:
                       const EdgeInsets.only(left: 48.0, top: 12.0, right: 20.0),
@@ -115,19 +117,17 @@ class CommunityPostScreen extends StatelessWidget {
                     children: [
                       Image.asset('assets/cori.png', width: 20, height: 20),
                       SizedBox(width: 8),
-                      Text('209', style: TextStyle(color: Colors.black)),
                       SizedBox(width: 16),
                       Image.asset('assets/marker.png', width: 20, height: 20),
                       SizedBox(width: 8),
-                      Text('107', style: TextStyle(color: Colors.black)),
                       Spacer(), // Añade un espacio flexible entre los elementos y el texto de la fecha
-                      Text('17:55',
-                          style: TextStyle(
-                              color: Colors.black)), // Aquí añades la hora
                       SizedBox(width: 8),
-                      Text('19/12/23',
-                          style: TextStyle(
-                              color: Colors.black)), // Y aquí la fecha
+                      Text(
+                        DateFormat('HH:mm dd/MM/yyyy').format(timestamp),
+                        style: TextStyle(
+                          color: Colors.black,
+                        ),
+                      )
                     ],
                   ),
                 ),

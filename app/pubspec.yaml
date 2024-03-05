@@ -100,10 +100,11 @@ flutter:
     - assets/home-selected.png
     - assets/search.png
     - assets/banda-norte.png
-    - assets/banda-norte-rounded.png
     - assets/alberdi.png
+    - assets/barrio-jardin.png
     - assets/bimaco.png
     - assets/micro-centro.png
+    - assets/otro-barrio.png
     - assets/note.png
     - assets/back-arrow-colored.png
     - assets/next-arrow.png

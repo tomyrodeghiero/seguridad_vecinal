@@ -1,8 +1,4 @@
 import 'dart:convert';
-
-import 'package:cori/components/custom_bottom_nav_bar.dart';
-import 'package:cori/screens/community_screen.dart';
-import 'package:cori/screens/map_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cori/colors.dart';
 import 'package:cori/components/custom_drawer.dart';
@@ -10,6 +6,7 @@ import 'package:cori/screens/community_post_screen.dart';
 import 'package:cori/screens/notifications_screen.dart';
 import 'package:cori/screens/post_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Report {
   final String title;
@@ -19,6 +16,7 @@ class Report {
   final List<String> images;
   final String senderEmail;
   final String senderProfileImage;
+  final String senderFullName;
 
   Report({
     required this.title,
@@ -28,6 +26,7 @@ class Report {
     required this.images,
     required this.senderEmail,
     required this.senderProfileImage,
+    required this.senderFullName,
   });
 
   factory Report.fromJson(Map<String, dynamic> json) {
@@ -51,6 +50,7 @@ class Report {
       images: json['images'] != null ? List<String>.from(json['images']) : [],
       senderEmail: json['senderEmail'] ?? 'correo@predeterminado.com',
       senderProfileImage: json['senderProfileImage'] ?? '',
+      senderFullName: json['senderFullName'] ?? '',
     );
   }
 }
@@ -61,7 +61,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
+  String _fullName = '';
+  String _imageUrl = '';
+
+  Future<void> _loadUserData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _fullName = prefs.getString('fullName') ?? 'Nombre no disponible';
+      _imageUrl = prefs.getString('imageUrl') ?? '';
+    });
+  }
+
   List<Report> reports = [];
 
   Future<void> fetchReports() async {
@@ -79,29 +89,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _onItemTapped(int index) {
-    switch (index) {
-      case 0:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-        );
-        break;
-      case 1:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => MapScreen()),
-        );
-        break;
-      case 2:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => CommunityScreen()),
-        );
-        break;
-    }
-  }
-
   void _navigateAndDisplaySelection(BuildContext context) async {
     final result = await Navigator.push(
       context,
@@ -116,31 +103,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _loadUserData();
     fetchReports();
-  }
-
-  String getAvatarAsset(int index) {
-    switch (index) {
-      case 0:
-        return 'assets/avatar-01.png';
-      case 1:
-        return 'assets/avatar-02.png';
-      case 2:
-        return 'assets/avatar-03.png';
-      default:
-        return 'assets/avatar-01.png';
-    }
-  }
-
-  String getImageAsset(int index) {
-    switch (index) {
-      case 1:
-        return 'assets/image-01.png';
-      case 2:
-        return 'assets/image-02.png';
-      default:
-        return '';
-    }
   }
 
   @override
@@ -181,7 +145,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      drawer: CustomDrawer(),
+      drawer: CustomDrawer(
+        fullName: _fullName,
+        imageUrl: _imageUrl,
+      ),
       body: Container(
         color: Colors.white,
         child: Column(
@@ -223,9 +190,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           builder: (context) => CommunityPostScreen(
                             senderEmail: report.senderEmail,
                             title: report.title,
-                            description: report.description.join(" "),
+                            description: report.description,
                             images: report.images,
                             timestamp: report.timestamp,
+                            senderProfileImage: report.senderProfileImage,
+                            senderFullName: report.senderFullName,
                           ),
                         ),
                       );
@@ -259,8 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        report
-                                            .senderEmail, // Cambiado a senderEmail para un ejemplo
+                                        report.senderFullName,
                                         style: TextStyle(
                                           color: AppColors.purple500,
                                           fontWeight: FontWeight.w600,
@@ -307,10 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   Image.asset('assets/cori.png',
                                       width: 20, height: 20),
-                                  SizedBox(width: 8),
-                                  Text('209',
-                                      style: TextStyle(color: Colors.black)),
-                                  SizedBox(width: 16),
+                                  SizedBox(width: 16.0),
                                   Image.asset('assets/marker.png',
                                       width: 20, height: 20),
                                   SizedBox(width: 8),
@@ -341,10 +306,6 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 26.0,
         ),
         backgroundColor: AppColors.purple500,
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
       ),
     );
   }

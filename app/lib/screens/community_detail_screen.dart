@@ -1,36 +1,84 @@
+import 'package:cori/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cori/colors.dart';
 import 'package:cori/components/custom_drawer.dart';
 import 'package:cori/screens/community_post_screen.dart';
 import 'package:cori/screens/post_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class CommunityDetailScreen extends StatelessWidget {
-  String getAvatarAsset(int index) {
-    switch (index) {
-      case 0:
-        return 'assets/avatar-01.png';
-      case 1:
-        return 'assets/avatar-02.png';
-      case 2:
-        return 'assets/avatar-03.png';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class CommunityDetailScreen extends StatefulWidget {
+  final String neighborhoodName;
+  final int memberCount;
+
+  CommunityDetailScreen(
+      {required this.neighborhoodName, required this.memberCount});
+
+  @override
+  _CommunityDetailScreenState createState() => _CommunityDetailScreenState();
+}
+
+class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
+  String _fullName = '';
+  String _imageUrl = '';
+  bool _isJoined = false;
+
+  Future<void> _loadUserData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _fullName = prefs.getString('fullName') ?? 'Nombre no disponible';
+      _imageUrl = prefs.getString('imageUrl') ?? '';
+    });
+  }
+
+  List<Report> reports = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+    fetchReports();
+  }
+
+  String getImagePathForNeighborhood(String neighborhood) {
+    switch (neighborhood) {
+      case 'Banda Norte':
+        return 'assets/banda-norte.png';
+      case 'Alberdi':
+        return 'assets/alberdi.png';
+      case 'Bimaco':
+        return 'assets/bimaco.png';
+      case 'Barrio Jardín':
+        return 'assets/barrio-jardin.png';
+      case 'Micro centro':
+        return 'assets/micro-centro.png';
       default:
-        return 'assets/avatar-01.png';
+        return 'assets/otro-barrio.png';
     }
   }
 
-  String getImageAsset(int index) {
-    switch (index) {
-      case 1:
-        return 'assets/image-01.png';
-      case 2:
-        return 'assets/image-02.png';
-      default:
-        return '';
+  Future<void> fetchReports() async {
+    print('Fetching reports...');
+    final response = await http.get(Uri.parse(
+        'http://127.0.0.1:5001/api/get-reports-by-neighborhood?neighborhood=${Uri.encodeComponent(widget.neighborhoodName)}'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> reportsJson = json.decode(response.body);
+      setState(() {
+        reports = reportsJson.map((json) => Report.fromJson(json)).toList();
+      });
+    } else {
+      print('Failed to load reports: ${response.statusCode}');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    String neighborhoodImagePath =
+        getImagePathForNeighborhood(widget.neighborhoodName);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -43,7 +91,10 @@ class CommunityDetailScreen extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      drawer: CustomDrawer(),
+      drawer: CustomDrawer(
+        fullName: _fullName,
+        imageUrl: _imageUrl,
+      ),
       body: Container(
         color: Colors.white,
         child: Column(
@@ -63,8 +114,7 @@ class CommunityDetailScreen extends StatelessWidget {
                     child: CircleAvatar(
                       backgroundColor: Colors.white,
                       radius: 30,
-                      backgroundImage: AssetImage(
-                          'assets/banda-norte-rounded.png'), // Usa AssetImage para cargar la imagen
+                      backgroundImage: AssetImage(neighborhoodImagePath),
                     ),
                   ),
                   SizedBox(width: 16),
@@ -73,14 +123,14 @@ class CommunityDetailScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Banda Norte',
+                          widget.neighborhoodName,
                           style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 24.0,
                               color: AppColors.purple500),
                         ),
                         Text(
-                          '22 miembros',
+                          '${widget.memberCount} miembros',
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
                             fontSize: 16.0,
@@ -91,9 +141,13 @@ class CommunityDetailScreen extends StatelessWidget {
                           margin: EdgeInsets.only(top: 8.0),
                           height: 28.0,
                           child: FloatingActionButton.extended(
-                            onPressed: () {},
+                            onPressed: () {
+                              setState(() {
+                                _isJoined = !_isJoined;
+                              });
+                            },
                             label: Text(
-                              'Unirme'.toUpperCase(),
+                              _isJoined ? 'Unido' : 'Unirme',
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
                                 fontSize: 16.0,
@@ -101,7 +155,9 @@ class CommunityDetailScreen extends StatelessWidget {
                               ),
                             ),
                             elevation: 0,
-                            backgroundColor: AppColors.purple500,
+                            backgroundColor: _isJoined
+                                ? AppColors.turquoiseBlue500
+                                : AppColors.purple500,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50.0)),
@@ -123,7 +179,7 @@ class CommunityDetailScreen extends StatelessWidget {
               ),
               padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
               child: Text(
-                'Noticias de Río Cuarto',
+                'Noticias',
                 style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.w500,
@@ -132,25 +188,14 @@ class CommunityDetailScreen extends StatelessWidget {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: 3,
+                itemCount: reports.length,
                 itemBuilder: (context, index) {
-                  String newsTitle;
-                  String newsSubtitle;
-                  String imageAsset = getImageAsset(index);
-                  bool hasImage = imageAsset.isNotEmpty;
-                  if (index == 0) {
-                    newsTitle = 'Juan Perez';
-                    newsSubtitle =
-                        'Apuñalaron a un menor en el parque Sarmiento para robarle el télefono. El chico fue llevado al hospital en grave estado.';
-                  } else if (index == 1) {
-                    newsTitle = 'Tobias Gonzales';
-                    newsSubtitle =
-                        'Entraron a robar un negocio en la calle Sobremonte. Rompieron todos los vidrios para poder ingresar. Cortaron la calle.';
-                  } else {
-                    newsTitle = 'Ariel Molina';
-                    newsSubtitle =
-                        'Muere Marta Perez, la señora que había sido internada después que la tiraron de la moto para robarle.';
-                  }
+                  Report report = reports[index];
+                  String fullDescription =
+                      report.description.join(" "); // Une las descripciones
+
+                  String firstImage =
+                      report.images.isNotEmpty ? report.images[0] : '';
 
                   return InkWell(
                     onTap: () {
@@ -158,14 +203,13 @@ class CommunityDetailScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => CommunityPostScreen(
-                            senderEmail:
-                                'email@example.com', // Debes reemplazar estos valores
-                            title: 'Título del Post',
-                            description: 'Descripción del post aquí.',
-                            images: [
-                              'https://example.com/image.jpg'
-                            ], // Asegúrate de pasar URLs o rutas de imágenes válidas
-                            timestamp: DateTime.now(),
+                            senderEmail: report.senderEmail,
+                            title: report.title,
+                            description: report.description,
+                            images: report.images,
+                            timestamp: report.timestamp,
+                            senderProfileImage: report.senderProfileImage,
+                            senderFullName: report.senderFullName,
                           ),
                         ),
                       );
@@ -176,7 +220,7 @@ class CommunityDetailScreen extends StatelessWidget {
                               ? Border(
                                   top: BorderSide(
                                       width: 1.0, color: Colors.grey),
-                                ) // No aplica ningún borde si el índice es mayor que 0
+                                )
                               : null),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
@@ -189,7 +233,7 @@ class CommunityDetailScreen extends StatelessWidget {
                               children: [
                                 CircleAvatar(
                                   backgroundImage:
-                                      AssetImage(getAvatarAsset(index)),
+                                      NetworkImage(report.senderProfileImage),
                                   radius: 18,
                                 ),
                                 SizedBox(width: 16),
@@ -199,7 +243,7 @@ class CommunityDetailScreen extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        newsTitle,
+                                        report.senderFullName,
                                         style: TextStyle(
                                           color: AppColors.purple500,
                                           fontWeight: FontWeight.w600,
@@ -208,7 +252,7 @@ class CommunityDetailScreen extends StatelessWidget {
                                       ),
                                       SizedBox(height: 4),
                                       Text(
-                                        newsSubtitle,
+                                        fullDescription, // Usa la descripción completa
                                         style: TextStyle(
                                           color: Colors.black,
                                           fontSize: 16.0,
@@ -221,7 +265,8 @@ class CommunityDetailScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            if (hasImage)
+                            if (report
+                                .images.isNotEmpty) // Verifica si hay imágenes
                               Padding(
                                 padding: const EdgeInsets.only(
                                     left: 48.0, top: 8.0, right: 16.0),
@@ -229,10 +274,11 @@ class CommunityDetailScreen extends StatelessWidget {
                                   widthFactor: 1.0,
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(40.0),
-                                    child: Image.asset(
-                                      imageAsset,
+                                    child: Image.network(
+                                      // Cambiado a Image.network para cargar imágenes de la red
+                                      firstImage,
                                       fit: BoxFit.cover,
-                                      height: 160.0,
+                                      height: 164.0,
                                     ),
                                   ),
                                 ),
@@ -251,8 +297,6 @@ class CommunityDetailScreen extends StatelessWidget {
                                   Image.asset('assets/marker.png',
                                       width: 20, height: 20),
                                   SizedBox(width: 8),
-                                  Text('107',
-                                      style: TextStyle(color: Colors.black)),
                                 ],
                               ),
                             ),
