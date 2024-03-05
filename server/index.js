@@ -186,7 +186,14 @@ app.post('/api/create-report', async (req, res) => {
 
             const title = Array.isArray(fields.title) ? fields.title[0] : fields.title;
 
-            let message = Array.isArray(fields.message) && fields.message.length > 0 ? fields.message[0] : title;
+            let message;
+            if (typeof fields.message === 'string' && fields.message.trim() !== '') {
+                message = fields.message;
+            } else if (Array.isArray(fields.message) && fields.message.length > 0) {
+                message = fields.message[0];
+            } else {
+                message = title;
+            }
 
             const neighborhood = Array.isArray(fields.neighborhood) ? fields.neighborhood[0] : fields.neighborhood;
             const senderEmail = Array.isArray(fields.senderEmail) ? fields.senderEmail[0] : fields.senderEmail;
