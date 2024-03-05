@@ -175,25 +175,27 @@ app.post('/api/create-report', async (req, res) => {
             });
         });
 
-        let senderEmail = fields.senderEmail;
-        let description = fields.description;
-        let title = fields.title;
-        let neighborhood = fields.neighborhood;
-        const images = files.images;
+        let { senderEmail, description, title, neighborhood } = fields;
 
-        if (Array.isArray(senderEmail)) senderEmail = senderEmail[0];
-        if (Array.isArray(title)) title = title[0];
-        if (Array.isArray(description)) description = description[0];
-        if (Array.isArray(neighborhood)) neighborhood = neighborhood[0];
+        // Normaliza los campos en caso de que sean arrays
+        senderEmail = Array.isArray(senderEmail) ? senderEmail[0] : senderEmail;
+        title = Array.isArray(title) ? title[0] : title;
+        description = Array.isArray(description) ? description[0] : description;
+        neighborhood = Array.isArray(neighborhood) ? neighborhood[0] : neighborhood;
+
+        // Verifica que la descripción exista
+        if (!description) {
+            return res.status(400).send("Description is required");
+        }
 
         let imageUrls = [];
-        if (Array.isArray(images)) {
-            for (let image of images) {
+        if (Array.isArray(files.images)) {
+            for (let image of files.images) {
                 const fileUrl = await uploadToCloudinary(image.filepath);
                 imageUrls.push(fileUrl);
             }
-        } else if (images) {
-            const fileUrl = await uploadToCloudinary(images.filepath);
+        } else if (files.images) {
+            const fileUrl = await uploadToCloudinary(files.images.filepath);
             imageUrls.push(fileUrl);
         }
 
@@ -236,7 +238,6 @@ app.post('/api/create-report', async (req, res) => {
         res.status(500).send("Error saving the report");
     }
 });
-
 app.post('/api/validate-login', async (req, res) => {
     const { email, password } = req.body;
 
