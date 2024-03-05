@@ -202,8 +202,6 @@ app.post('/api/create-report', async (req, res) => {
             senderProfileImage,
         });
 
-        await newReport.save();
-
         const users = await User.find({ email: { $ne: senderEmail } });
         for (let user of users) {
             const newNotification = new Notification({
@@ -220,9 +218,9 @@ app.post('/api/create-report', async (req, res) => {
             await newNotification.save();
         }
 
+        await newReport.save();
         res.json({ message: 'Report created successfully', reportId: newReport._id, senderProfileImage });
         console.log("Report created successfully: ", newReport);
-
     } catch (error) {
         console.error("Error processing the form:", error);
         res.status(500).send("Error saving the report");
