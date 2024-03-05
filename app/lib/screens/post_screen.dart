@@ -46,83 +46,37 @@ class _PostScreenState extends State<PostScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
+
     Future<void> _publishPost() async {
-      setState(() {
-        _isLoading = true;
-      });
+      if (_formKey.currentState?.validate() ?? false) {
+        setState(() {
+          _isLoading = true;
+        });
 
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? userEmail = prefs.getString('userEmail');
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? userEmail = prefs.getString('userEmail');
 
-      if (userEmail == null) {
-        Fluttertoast.showToast(
-          msg: "No se encontró el email del usuario.",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 2,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-        return;
-      }
-
-      if (_selectedNeighborhood == null ||
-          _textController.text.isEmpty ||
-          _messageController.text.isEmpty) {
-        _isLoading = false;
-        Fluttertoast.showToast(
-          msg:
-              "Por favor, completa todos los campos requeridos: barrio, título y descripción.",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-        return;
-      }
-
-      var uri = Uri.parse('https://cori-backend.vercel.app/api/create-report');
-      var request = http.MultipartRequest('POST', uri);
-
-      request.fields['senderEmail'] = userEmail;
-      request.fields['title'] = _textController.text;
-      request.fields['message'] = _messageController.text;
-      request.fields['neighborhood'] =
-          _selectedNeighborhood ?? "No especificado";
-
-      for (var imageFile in _imageFileList ?? []) {
-        request.files.add(await http.MultipartFile.fromPath(
-          'images',
-          imageFile.path,
-          contentType:
-              MediaType('image', basename(imageFile.path).split('.').last),
-        ));
-      }
-
-      try {
-        var response = await request.send();
-
-        if (response.statusCode == 200) {
-          print("Reporte creado con éxito.");
-
+        if (userEmail == null) {
           Fluttertoast.showToast(
-            msg: "¡Gracias! Tu reporte fue creado correctamente.",
+            msg: "No se encontró el email del usuario.",
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 2,
-            backgroundColor: Colors.green,
+            backgroundColor: Colors.red,
             textColor: Colors.white,
             fontSize: 16.0,
           );
+          return;
+        }
 
-          Navigator.of(context).pop(true);
-        } else {
-          print("Falló la creación del reporte.");
+        if (_selectedNeighborhood == null ||
+            _textController.text.isEmpty ||
+            _messageController.text.isEmpty) {
+          _isLoading = false;
           Fluttertoast.showToast(
-            msg: "Error al guardar el reporte, intenta nuevamente.",
+            msg:
+                "Por favor, completa todos los campos requeridos: barrio, título y descripción.",
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
@@ -130,22 +84,79 @@ class _PostScreenState extends State<PostScreen> {
             textColor: Colors.white,
             fontSize: 16.0,
           );
+          return;
         }
-      } catch (e) {
-        print("Error al enviar el reporte: $e");
-        Fluttertoast.showToast(
-          msg: "Error al enviar el reporte, verifica tu conexión.",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
+
+        var uri =
+            Uri.parse('https://cori-backend.vercel.app/api/create-report');
+        var request = http.MultipartRequest('POST', uri);
+
+        request.fields['senderEmail'] = userEmail;
+        request.fields['title'] = _textController.text;
+        request.fields['message'] = _messageController.text;
+        request.fields['neighborhood'] =
+            _selectedNeighborhood ?? "No especificado";
+
+        for (var imageFile in _imageFileList ?? []) {
+          request.files.add(await http.MultipartFile.fromPath(
+            'images',
+            imageFile.path,
+            contentType:
+                MediaType('image', basename(imageFile.path).split('.').last),
+          ));
+        }
+
+        if (_messageController.text.isEmpty) {
+          Fluttertoast.showToast(
+            msg: "El campo de descripción no puede estar vacío.",
+            toastLength: Toast.LENGTH_SHORT,
+          );
+        }
+        try {
+          var response = await request.send();
+
+          if (response.statusCode == 200) {
+            print("Reporte creado con éxito.");
+
+            Fluttertoast.showToast(
+              msg: "¡Gracias! Tu reporte fue creado correctamente.",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 2,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+
+            Navigator.of(context).pop(true);
+          } else {
+            print("Falló la creación del reporte.");
+            Fluttertoast.showToast(
+              msg: "Error al guardar el reporte, intenta nuevamente.",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+          }
+        } catch (e) {
+          print("Error al enviar el reporte: $e");
+          Fluttertoast.showToast(
+            msg: "Error al enviar el reporte, verifica tu conexión.",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        } finally {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     }
 
@@ -233,118 +244,131 @@ class _PostScreenState extends State<PostScreen> {
           ],
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Container(
-                          width: 40.0,
-                          height: 40.0,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[
-                                400], // Puedes quitar este color si siempre tendrás una imagen
-                            shape: BoxShape.circle,
-                            image: _userImageUrl != null
-                                ? DecorationImage(
-                                    image: NetworkImage(_userImageUrl!),
-                                    fit: BoxFit.fill,
-                                  )
-                                : null,
+      body: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Container(
+                            width: 40.0,
+                            height: 40.0,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[
+                                  400], // Puedes quitar este color si siempre tendrás una imagen
+                              shape: BoxShape.circle,
+                              image: _userImageUrl != null
+                                  ? DecorationImage(
+                                      image: NetworkImage(_userImageUrl!),
+                                      fit: BoxFit.fill,
+                                    )
+                                  : null,
+                            ),
                           ),
                         ),
-                      ),
-                      Expanded(
-                        child: TextField(
-                          controller: _textController,
-                          decoration: InputDecoration(
-                            hintText: '¿Qué está pasando?',
-                            border: InputBorder.none,
-                            hintStyle: TextStyle(),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _textController,
+                            decoration: InputDecoration(
+                              hintText: '¿Qué está pasando?',
+                              border: InputBorder.none,
+                              hintStyle: TextStyle(),
+                            ),
+                            style: TextStyle(
+                                fontSize: 22.0,
+                                color: AppColors.purple500,
+                                fontWeight: FontWeight.w700),
+                            autofocus: true,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor, ingresa un título';
+                              }
+                              return null;
+                            },
                           ),
-                          style: TextStyle(
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12.0),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _messageController,
+                        decoration: InputDecoration(
+                          labelText: 'Describe lo que sucedió...',
+                          border: InputBorder.none,
+                          labelStyle: TextStyle(
+                              color: Colors.black87,
                               fontSize: 22.0,
-                              color: AppColors.purple500,
-                              fontWeight: FontWeight.w700),
-                          autofocus: true,
+                              fontWeight: FontWeight.w500),
                         ),
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor, ingresa una descripción';
+                          }
+                          return null;
+                        },
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 12.0),
-                  Expanded(
-                    child: TextField(
-                      controller: _messageController,
-                      decoration: InputDecoration(
-                        labelText: 'Describe lo que sucedió...',
-                        border: InputBorder.none,
-                        labelStyle: TextStyle(
-                            color: Colors.black87,
-                            fontSize: 22.0,
-                            fontWeight: FontWeight.w500),
-                      ),
-                      maxLines:
-                          null, // Ajusta el número de líneas si es necesario
-                      keyboardType: TextInputType
-                          .multiline, // Adecuado para entradas de texto multilínea
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 40.0),
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height * 0.1,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: _pickImage,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Image.asset('assets/camera.png'),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40.0),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.1,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Image.asset('assets/camera.png'),
+                      ),
                     ),
-                  ),
-                  if (_imageFileList != null)
-                    for (var imageFile in _imageFileList!)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Container(
-                          width: 100.0, // Ancho fijo para la imagen
-                          height: 100.0, // Alto fijo para la imagen
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppColors.purple500, // Color del borde
-                              width: 1.0, // Ancho del borde
+                    if (_imageFileList != null)
+                      for (var imageFile in _imageFileList!)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Container(
+                            width: 100.0, // Ancho fijo para la imagen
+                            height: 100.0, // Alto fijo para la imagen
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: AppColors.purple500, // Color del borde
+                                width: 1.0, // Ancho del borde
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                  8.0), // Radio del borde para esquinas redondeadas
                             ),
-                            borderRadius: BorderRadius.circular(
-                                8.0), // Radio del borde para esquinas redondeadas
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(
-                                8.0), // Radio del borde para el clip de la imagen
-                            child: Image.file(
-                              File(imageFile.path),
-                              fit: BoxFit
-                                  .cover, // Asegura que la imagen cubra todo el espacio disponible
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                  8.0), // Radio del borde para el clip de la imagen
+                              child: Image.file(
+                                File(imageFile.path),
+                                fit: BoxFit
+                                    .cover, // Asegura que la imagen cubra todo el espacio disponible
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

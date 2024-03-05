@@ -1,8 +1,7 @@
 require('dotenv').config();
 const fs = require('fs');
-const { google } = require('googleapis');
 const User = require('./models/User');
-const Token = require('./models/Token');
+const bodyParser = require('body-parser');
 const Report = require('./models/Report');
 const Notification = require('./models/Notification');
 const connectDB = require('./db/index');
@@ -159,72 +158,72 @@ async function uploadToCloudinary(filePath) {
 app.post('/api/create-report', async (req, res) => {
     const form = new formidable.IncomingForm();
 
-    try {
-        const { fields, files } = await new Promise((resolve, reject) => {
-            form.parse(req, (err, fields, files) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve({ fields, files });
-            });
-        });
-
-        let { senderEmail, title, neighborhood, message } = fields;
-        console.log("fields", fields);
-
-        let imageUrls = [];
-        if (Array.isArray(files.images)) {
-            for (let image of files.images) {
-                const fileUrl = await uploadToCloudinary(image.filepath);
-                imageUrls.push(fileUrl);
-            }
-        } else if (files.images) {
-            const fileUrl = await uploadToCloudinary(files.images.filepath);
-            imageUrls.push(fileUrl);
+    form.parse(req, async (err, fields, files) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Error al procesar los archivos' });
         }
 
-        message = Array.isArray(message) ? message[0] : message;
-        senderEmail = Array.isArray(senderEmail) ? senderEmail[0] : senderEmail;
-        title = Array.isArray(title) ? title[0] : title;
-        neighborhood = Array.isArray(neighborhood) ? neighborhood[0] : neighborhood;
+        try {
+            const processUpload = async (file) => {
+                return cloudinary.uploader.upload(file.filepath, {
+                    folder: "cori",
+                    resource_type: "auto"
+                });
+            };
 
-        const user = await User.findOne({ email: senderEmail });
-        const senderProfileImage = user ? user.imageUrl : 'URL predeterminada si no se encuentra el usuario';
+            let uploads = [];
 
-        const newReport = new Report({
-            title,
-            message,
-            neighborhood,
-            timestamp: new Date(),
-            images: imageUrls,
-            senderEmail,
-            senderProfileImage,
-        });
+            if (Array.isArray(files.images)) {
+                files.images.forEach(async fileItem => {
+                    uploads.push(processUpload(fileItem));
+                });
+            }
 
-        const users = await User.find({ email: { $ne: senderEmail } });
-        for (let user of users) {
-            const newNotification = new Notification({
-                message: newReport.title,
-                recipientEmail: user.email,
+            const results = await Promise.all(uploads);
+            const images = results.map(result => result.secure_url);
+
+            const title = Array.isArray(fields.title) ? fields.title[0] : fields.title;
+            const message = Array.isArray(fields.message) ? fields.message[0] : fields.message;
+            const neighborhood = Array.isArray(fields.neighborhood) ? fields.neighborhood[0] : fields.neighborhood;
+            const senderEmail = Array.isArray(fields.senderEmail) ? fields.senderEmail[0] : fields.senderEmail;
+
+            const user = await User.findOne({ email: senderEmail });
+            const senderProfileImage = user ? user.imageUrl : 'URL predeterminada si no se encuentra el usuario';
+
+            const newReport = new Report({
                 title,
                 message,
                 neighborhood,
                 timestamp: new Date(),
-                images: imageUrls,
+                images,
                 senderEmail,
                 senderProfileImage,
             });
-            await newNotification.save();
-        }
 
-        await newReport.save();
-        res.json({ message: 'Report created successfully', reportId: newReport._id, senderProfileImage });
-        console.log("Report created successfully: ", newReport);
-    } catch (error) {
-        console.error("Error processing the form:", error);
-        res.status(500).send("Error saving the report");
-    }
+            const users = await User.find({ email: { $ne: senderEmail } });
+            for (let user of users) {
+                const newNotification = new Notification({
+                    message: newReport.title,
+                    recipientEmail: user.email,
+                    title,
+                    message,
+                    neighborhood,
+                    timestamp: new Date(),
+                    images: imageUrls,
+                    senderEmail,
+                    senderProfileImage,
+                });
+                await newNotification.save();
+            }
+
+            await newReport.save();
+            res.status(200).json({ message: 'Reporte creado con éxito' });
+        } catch (uploadError) {
+            console.error(uploadError);
+            res.status(500).json({ message: 'Error al subir las imágenes' });
+        }
+    });
 });
 
 app.post('/api/validate-login', async (req, res) => {
