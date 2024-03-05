@@ -173,11 +173,6 @@ app.post('/api/create-report', async (req, res) => {
         let { senderEmail, title, neighborhood, message } = fields;
         console.log("fields", fields);
 
-        senderEmail = Array.isArray(senderEmail) ? senderEmail[0] : senderEmail;
-        title = Array.isArray(title) ? title[0] : title;
-        neighborhood = Array.isArray(neighborhood) ? neighborhood[0] : neighborhood;
-        message = Array.isArray(message) ? message[0] : message;
-
         let imageUrls = [];
         if (Array.isArray(files.images)) {
             for (let image of files.images) {
@@ -188,6 +183,11 @@ app.post('/api/create-report', async (req, res) => {
             const fileUrl = await uploadToCloudinary(files.images.filepath);
             imageUrls.push(fileUrl);
         }
+
+        message = Array.isArray(message) ? message[0] : message;
+        senderEmail = Array.isArray(senderEmail) ? senderEmail[0] : senderEmail;
+        title = Array.isArray(title) ? title[0] : title;
+        neighborhood = Array.isArray(neighborhood) ? neighborhood[0] : neighborhood;
 
         const user = await User.findOne({ email: senderEmail });
         const senderProfileImage = user ? user.imageUrl : 'URL predeterminada si no se encuentra el usuario';
