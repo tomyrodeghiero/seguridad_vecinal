@@ -17,7 +17,7 @@ class PostScreen extends StatefulWidget {
 class _PostScreenState extends State<PostScreen> {
   final ImagePicker _picker = ImagePicker();
   final TextEditingController _textController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
   List<XFile>? _imageFileList;
   String? _selectedNeighborhood;
   bool _isLoading = false;
@@ -69,7 +69,7 @@ class _PostScreenState extends State<PostScreen> {
 
       if (_selectedNeighborhood == null ||
           _textController.text.isEmpty ||
-          _descriptionController.text.isEmpty) {
+          _messageController.text.isEmpty) {
         _isLoading = false;
         Fluttertoast.showToast(
           msg:
@@ -89,7 +89,7 @@ class _PostScreenState extends State<PostScreen> {
 
       request.fields['senderEmail'] = userEmail;
       request.fields['title'] = _textController.text;
-      request.fields['description'] = _descriptionController.text;
+      request.fields['message'] = _messageController.text;
       request.fields['neighborhood'] =
           _selectedNeighborhood ?? "No especificado";
 
@@ -281,7 +281,7 @@ class _PostScreenState extends State<PostScreen> {
                   SizedBox(height: 12.0),
                   Expanded(
                     child: TextField(
-                      controller: _descriptionController,
+                      controller: _messageController,
                       decoration: InputDecoration(
                         labelText: 'Describe lo que sucedió...',
                         border: InputBorder.none,

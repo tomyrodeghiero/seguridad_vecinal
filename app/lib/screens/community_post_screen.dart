@@ -5,7 +5,7 @@ import 'package:cori/colors.dart';
 class CommunityPostScreen extends StatelessWidget {
   final String senderEmail;
   final String title;
-  final List<String> description;
+  final List<String> message;
   final List<String> images;
   final DateTime timestamp;
   final String senderProfileImage;
@@ -14,7 +14,7 @@ class CommunityPostScreen extends StatelessWidget {
   CommunityPostScreen({
     required this.senderEmail,
     required this.title,
-    required this.description,
+    required this.message,
     required this.images,
     required this.timestamp,
     required this.senderProfileImage,
@@ -81,7 +81,7 @@ class CommunityPostScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            description.join(" "),
+                            message.join(" "),
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 16.0,

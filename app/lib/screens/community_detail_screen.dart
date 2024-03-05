@@ -277,8 +277,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                 itemCount: reports.length,
                 itemBuilder: (context, index) {
                   Report report = reports[index];
-                  String fullDescription =
-                      report.description.join(" "); // Une las descripciones
+                  String fullmessage = report.message.join(" ");
 
                   String firstImage =
                       report.images.isNotEmpty ? report.images[0] : '';
@@ -291,7 +290,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                           builder: (context) => CommunityPostScreen(
                             senderEmail: report.senderEmail,
                             title: report.title,
-                            description: report.description,
+                            message: report.message,
                             images: report.images,
                             timestamp: report.timestamp,
                             senderProfileImage: report.senderProfileImage,
@@ -338,7 +337,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                                       ),
                                       SizedBox(height: 4),
                                       Text(
-                                        fullDescription, // Usa la descripción completa
+                                        fullmessage, // Usa la descripción completa
                                         style: TextStyle(
                                           color: Colors.black,
                                           fontSize: 16.0,

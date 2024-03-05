@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const reportSchema = new mongoose.Schema({
     title: String,
-    description: String,
+    message: String,
     neighborhood: String,
     timestamp: Date,
     images: [String],

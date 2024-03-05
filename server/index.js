@@ -24,11 +24,6 @@ const cors = require('cors');
 app.use(cors());
 connectDB();
 
-const getStoredRefreshToken = async () => {
-    const token = await Token.findOne();
-    return token ? token.refreshToken : null;
-};
-
 app.get("/auth/google", (req, res) => {
     const url = oauth2Client.generateAuthUrl({
         access_type: "offline",
@@ -116,12 +111,12 @@ app.post('/api/register-user', async (req, res) => {
                 // Para cada reporte, crea una nueva notificación para el nuevo usuario
                 await Promise.all(reports.map(async (report) => {
                     const newNotification = new Notification({
-                        message: `${report.title}`, // Personaliza este mensaje como prefieras
-                        recipientEmail: newUser.email, // El email del nuevo usuario
+                        message: `${report.title}`,
+                        recipientEmail: newUser.email,
                         title: report.title,
-                        description: report.description,
+                        message: report.message,
                         neighborhood: report.neighborhood,
-                        timestamp: new Date(), // O puedes usar report.timestamp si prefieres
+                        timestamp: new Date(),
                         images: report.images,
                         senderEmail: report.senderEmail,
                         senderProfileImage: report.senderProfileImage,
@@ -175,18 +170,13 @@ app.post('/api/create-report', async (req, res) => {
             });
         });
 
-        let { senderEmail, title, neighborhood } = fields;
+        let { senderEmail, title, neighborhood, message } = fields;
+        console.log("fields", fields);
 
         senderEmail = Array.isArray(senderEmail) ? senderEmail[0] : senderEmail;
         title = Array.isArray(title) ? title[0] : title;
         neighborhood = Array.isArray(neighborhood) ? neighborhood[0] : neighborhood;
-        console.log("fields", fields);
-
-        let description = fields.description;
-        if (Array.isArray(description)) {
-            description = description[0];
-        }
-        console.log("description", description);
+        message = Array.isArray(message) ? message[0] : message;
 
         let imageUrls = [];
         if (Array.isArray(files.images)) {
@@ -204,7 +194,7 @@ app.post('/api/create-report', async (req, res) => {
 
         const newReport = new Report({
             title,
-            description,
+            message,
             neighborhood,
             timestamp: new Date(),
             images: imageUrls,
@@ -220,7 +210,7 @@ app.post('/api/create-report', async (req, res) => {
                 message: newReport.title,
                 recipientEmail: user.email,
                 title,
-                description,
+                message,
                 neighborhood,
                 timestamp: new Date(),
                 images: imageUrls,

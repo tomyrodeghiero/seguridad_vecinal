@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Report {
   final String title;
-  final List<String> description;
+  final List<String> message;
   final String neighborhood;
   final DateTime timestamp;
   final List<String> images;
@@ -20,7 +20,7 @@ class Report {
 
   Report({
     required this.title,
-    required this.description,
+    required this.message,
     required this.neighborhood,
     required this.timestamp,
     required this.images,
@@ -30,19 +30,19 @@ class Report {
   });
 
   factory Report.fromJson(Map<String, dynamic> json) {
-    var descriptionData = json['description'];
-    List<String> descriptionList;
-    if (descriptionData is String) {
-      descriptionList = [descriptionData];
-    } else if (descriptionData is List) {
-      descriptionList = List<String>.from(descriptionData);
+    var messageData = json['message'];
+    List<String> messageList;
+    if (messageData is String) {
+      messageList = [messageData];
+    } else if (messageData is List) {
+      messageList = List<String>.from(messageData);
     } else {
-      descriptionList = [];
+      messageList = [];
     }
 
     return Report(
       title: json['title'] ?? 'Título predeterminado',
-      description: descriptionList,
+      message: messageList,
       neighborhood: json['neighborhood'] ?? 'Barrio predeterminado',
       timestamp: json['timestamp'] != null
           ? DateTime.parse(json['timestamp'])
@@ -176,8 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: reports.length,
                 itemBuilder: (context, index) {
                   Report report = reports[index];
-                  String fullDescription =
-                      report.description.join(" "); // Une las descripciones
+                  String fullmessage = report.message.join(" ");
 
                   String firstImage =
                       report.images.isNotEmpty ? report.images[0] : '';
@@ -190,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           builder: (context) => CommunityPostScreen(
                             senderEmail: report.senderEmail,
                             title: report.title,
-                            description: report.description,
+                            message: report.message,
                             images: report.images,
                             timestamp: report.timestamp,
                             senderProfileImage: report.senderProfileImage,
@@ -237,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       SizedBox(height: 4),
                                       Text(
-                                        fullDescription, // Usa la descripción completa
+                                        fullmessage, // Usa la descripción completa
                                         style: TextStyle(
                                           color: Colors.black,
                                           fontSize: 16.0,
