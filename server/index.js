@@ -170,20 +170,20 @@ app.post('/api/create-report', async (req, res) => {
             return res.status(500).send("Error processing the form");
         }
 
-        let description = fields.description;
         let senderEmail = fields.senderEmail;
+        let description = fields.description;
         let title = fields.title;
         let neighborhood = fields.neighborhood;
         const images = files.images;
 
-        if (Array.isArray(description)) {
-            description = description[0];
-        }
         if (Array.isArray(senderEmail)) {
             senderEmail = senderEmail[0];
         }
         if (Array.isArray(title)) {
             title = title[0];
+        }
+        if (Array.isArray(description)) {
+            description = description[0];
         }
         if (Array.isArray(neighborhood)) {
             neighborhood = neighborhood[0];

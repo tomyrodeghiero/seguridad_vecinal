@@ -89,9 +89,9 @@ class _PostScreenState extends State<PostScreen> {
 
       request.fields['senderEmail'] = userEmail;
       request.fields['title'] = _textController.text;
-      request.fields['description'] = _descriptionController.text; // Correcto
+      request.fields['description'] = _descriptionController.text;
       request.fields['neighborhood'] =
-          _selectedNeighborhood ?? "No especificado"; // Correcto
+          _selectedNeighborhood ?? "No especificado";
 
       for (var imageFile in _imageFileList ?? []) {
         request.files.add(await http.MultipartFile.fromPath(
