@@ -157,7 +157,6 @@ async function uploadToCloudinary(filePath) {
 
 app.post('/api/create-report', async (req, res) => {
     const form = new formidable.IncomingForm();
-    await new Promise(resolve => setTimeout(resolve, 2000));
 
     form.parse(req, async (err, fields, files) => {
         if (err) {

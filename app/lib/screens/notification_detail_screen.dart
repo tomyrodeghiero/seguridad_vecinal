@@ -62,7 +62,7 @@ class NotificationDetailScreen extends StatelessWidget {
             ),
             SizedBox(height: 4.0),
             Text(
-              notification.description,
+              notification.message,
               style: TextStyle(
                 fontSize: 16.0,
                 color: Colors.black,

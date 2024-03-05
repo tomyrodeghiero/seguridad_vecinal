@@ -8,24 +8,24 @@ import 'dart:convert';
 class NotificationModel {
   final String id;
   final String title;
-  final String description;
+  final String message;
   final String date;
   final List<String> images;
 
   NotificationModel({
     required this.id,
     required this.title,
-    required this.description,
+    required this.message,
     required this.date,
     required this.images,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
-      id: json['_id'],
-      title: json['title'],
-      description: json['description'],
-      date: json['date'],
+      id: json['_id'] ?? '',
+      title: json['title'] ?? '',
+      message: json['message'] ?? '',
+      date: json['date'] ?? '',
       images: List<String>.from(json['images'] ?? []),
     );
   }
@@ -51,19 +51,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     if (userEmail != null) {
       final response = await http.get(
-        Uri.parse(
-            'https://cori-backend.vercel.app/api/get-unread-notifications?email=$userEmail'),
+        Uri.parse('https://cori-backend.vercel.app/api/get-reports'),
       );
 
       if (response.statusCode == 200) {
-        List<dynamic> notificationsJson = json.decode(response.body);
+        List<dynamic> reportsJson = json.decode(response.body);
         setState(() {
-          notifications = notificationsJson
+          notifications = reportsJson
               .map((json) => NotificationModel.fromJson(json))
               .toList();
         });
       } else {
-        print('Error fetching notifications: ${response.statusCode}');
+        print('Error fetching reports: ${response.statusCode}');
       }
     }
   }
@@ -141,7 +140,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               top:
                   8.0), // Añade un poco de espacio entre el título y la descripción
           child: Text(
-            notification.description,
+            notification.message,
             style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.w400,
