@@ -52,7 +52,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (userEmail != null) {
       final response = await http.get(
         Uri.parse(
-            'http://192.168.88.138:5001/api/get-unread-notifications?email=$userEmail'),
+            'https://cori-backend.vercel.app/api/get-unread-notifications?email=$userEmail'),
       );
 
       if (response.statusCode == 200) {

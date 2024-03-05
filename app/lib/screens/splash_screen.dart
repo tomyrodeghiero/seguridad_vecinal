@@ -29,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
     } else {
       // Realiza la solicitud HTTP al nuevo endpoint
       final response = await http.get(Uri.parse(
-          'http://192.168.88.138:5001/api/check-email?email=$userEmail'));
+          'https://cori-backend.vercel.app/api/check-email?email=$userEmail'));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

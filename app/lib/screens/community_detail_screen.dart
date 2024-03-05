@@ -30,7 +30,8 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
 
   Future<void> joinNeighborhood(
       String userEmail, String neighborhoodName) async {
-    final url = Uri.parse('http://192.168.88.138:5001/api/join-neighborhood');
+    final url =
+        Uri.parse('https://cori-backend.vercel.app/api/join-neighborhood');
     final response = await http.post(url,
         body: jsonEncode({
           'userEmail': userEmail,
@@ -67,15 +68,14 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     }
   }
 
-  String _userEmail = ''; // Añade esta línea
+  String _userEmail = '';
 
   Future<void> _loadUserData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _fullName = prefs.getString('fullName') ?? 'Nombre no disponible';
       _imageUrl = prefs.getString('imageUrl') ?? '';
-      _userEmail =
-          prefs.getString('userEmail') ?? ''; // Carga el correo electrónico
+      _userEmail = prefs.getString('userEmail') ?? '';
     });
   }
 
@@ -84,7 +84,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     final userEmail = prefs.getString('userEmail');
 
     final url = Uri.parse(
-        'http://192.168.88.138:5001/api/check-membership?userEmail=$userEmail&neighborhood=${widget.neighborhoodName}');
+        'https://cori-backend.vercel.app/api/check-membership?userEmail=$userEmail&neighborhood=${widget.neighborhoodName}');
 
     final response = await http.get(url);
 
@@ -138,7 +138,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   Future<void> fetchReports() async {
     print('Fetching reports...');
     final response = await http.get(Uri.parse(
-        'http://192.168.88.138:5001/api/get-reports-by-neighborhood?neighborhood=${Uri.encodeComponent(widget.neighborhoodName)}'));
+        'https://cori-backend.vercel.app/api/get-reports-by-neighborhood?neighborhood=${Uri.encodeComponent(widget.neighborhoodName)}'));
 
     if (response.statusCode == 200) {
       List<dynamic> reportsJson = json.decode(response.body);

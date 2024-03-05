@@ -70,7 +70,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
           return;
         }
 
-        var uri = Uri.parse('http://192.168.88.138:5001/api/register-user');
+        var uri =
+            Uri.parse('https://cori-backend.vercel.app/api/register-user');
         var request = http.MultipartRequest('POST', uri);
 
         request.fields['email'] = email;

@@ -28,8 +28,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   Future<List<Community>> fetchCommunitiesFromApi() async {
-    final url =
-        Uri.parse('http://192.168.88.138:5001/api/get-communities-from-users');
+    final url = Uri.parse(
+        'https://cori-backend.vercel.app/api/get-communities-from-users');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

@@ -87,7 +87,8 @@ class _MapScreenState extends State<MapScreen> {
   List<NeighborhoodReport> neighborhoodReports = [];
 
   Future<void> fetchNeighborhoodReports() async {
-    final url = Uri.parse('http://192.168.88.138:5001/api/get-reports-summary');
+    final url =
+        Uri.parse('https://cori-backend.vercel.app/api/get-reports-summary');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -267,14 +268,14 @@ class _MapScreenState extends State<MapScreen> {
     ];
 
     List<String> policeStationInfo = [
-      "Comisaría Distrito Banda Norte📌🏢República del Líbano, Banda Norte\n\n📍https://maps.app.goo.gl/7uGpWMmBb5NshSbBA\n\n📲 0358 467-2979",
-      "Comisaría Distrito Alberdi📌🏢Montevideo 349\n\n📍https://maps.app.goo.gl/Vr3wCK5YyR4WpCvm6\n\n📲0358 467-2901",
-      "Comisaría Distrito Primera Policía de la Provincia de Córdoba📌🏢Hipólito Irigoyen 2229, General Paz\n\n📍https://maps.app.goo.gl/De89SLGb2VQfdTNq5\n\n📲0358 467-2977",
-      "Policia de la Provincia de Córdoba - Regional 9📌🏢Belgrano 53\n\n📍https://maps.app.goo.gl/JVqf1VTu3skKsHNj9\n\n📲 0358 467-2960",
-      "Subcomisaria Bimaco📌🏢Carlos Gardel 1129\n\n📍https://maps.app.goo.gl/Dzn64PpBx9yffooj8\n\n📲0358 467-2976",
-      "Subcomisaria Abilene Río Cuarto📌🏢Diag. Cervantes 600-698\n\n📍https://maps.app.goo.gl/StszpjsECAAczUtj9\n\n📲 0358 467-2974",
+      "Comisaría Distrito Banda Norte📌🏢 República del Líbano, Banda Norte\n\n📍https://maps.app.goo.gl/7uGpWMmBb5NshSbBA\n\n📲 0358 467-2979",
+      "Comisaría Distrito Alberdi📌🏢 Montevideo 349\n\n📍https://maps.app.goo.gl/Vr3wCK5YyR4WpCvm6\n\n📲0358 467-2901",
+      "Comisaría Distrito Primera Policía de la Provincia de Córdoba📌🏢 Hipólito Irigoyen 2229, General Paz\n\n📍https://maps.app.goo.gl/De89SLGb2VQfdTNq5\n\n📲0358 467-2977",
+      "Policia de la Provincia de Córdoba - Regional 9📌🏢 Belgrano 53\n\n📍https://maps.app.goo.gl/JVqf1VTu3skKsHNj9\n\n📲 0358 467-2960",
+      "Subcomisaria Bimaco📌🏢 Carlos Gardel 1129\n\n📍https://maps.app.goo.gl/Dzn64PpBx9yffooj8\n\n📲0358 467-2976",
+      "Subcomisaria Abilene Río Cuarto📌🏢 Diag. Cervantes 600-698\n\n📍https://maps.app.goo.gl/StszpjsECAAczUtj9\n\n📲 0358 467-2974",
       "Policia Federal Argentina DUOF Río Cuarto📌🏢Lamadrid 389, Centro\n\n📍https://maps.google.com/?cid=2544254673140317202&entry=gps\n\n📲 0358 462-1125",
-      "Cárcel Río Cuarto📌🏢Av. Amadeo Sabattini 2602\n\n📍https://maps.app.goo.gl/TTtVTumuHQ7i3YqD6\n\n📲 0358 462-1125",
+      "Cárcel Río Cuarto📌🏢 Av. Amadeo Sabattini 2602\n\n📍https://maps.app.goo.gl/TTtVTumuHQ7i3YqD6\n\n📲 0358 462-1125",
     ];
 
     setState(() {
@@ -362,20 +363,20 @@ class _MapScreenState extends State<MapScreen> {
     ];
 
     List<String> healthLocationsInfo = [
-      "Nuevo hospital San Antonio de Padua📌🏥Guardias Nacionales 1027\n\n📍https://maps.app.goo.gl/6x3ZeoAVzThcksSv7?g_st=ic\n\n📲 0358 467-8700",
-      "Policlínico Privado San Lucas S.A.📌🏥Mitre 930\n\n📍https://maps.app.goo.gl/nDEHjKrT6tSqGJC46?g_st=ic\n\n📲0358 467-5600",
-      "Centro Médico Belgrano📌🏥Belgrano 387\n\n📍https://maps.app.goo.gl/hySD7cbWXkjU8QvZ8?g_st=ic\n\n📲0358 463-8093",
-      "Instituto Médico Río Cuarto📌🏥Hipólito Yrigoyen 1020\n\n📍https://maps.app.goo.gl/XjaKkRjZGBNM1Afp6?g_st=ic\n\n📲0810-444-4672",
-      "Centro de Salud Municipal📌🏥Cabrera 1344\n\n📍https://maps.app.goo.gl/N9VomHt8JGUMavETA?g_st=ic\n\n📲0358 476-8420",
-      "Clínica Regional del Sud📌🏥Av. Italia 1262\n\n📍https://maps.app.goo.gl/JmHKqRrmeA891zNb9?g_st=ic\n\n📲0358 467-9500",
-      "Mitre Centro Médico📌🏥Mitre 1288\n\n📍https://maps.app.goo.gl/SWogSuvcn9UVTLEd8?g_st=ic\n\n📲0358 462-5021",
-      "Fundacion Nuevo Hospital📌🏥Guardias Nacionales 1051\n\n📍https://maps.app.goo.gl/UyQ3A7Tn9hwWJU4k7?g_st=ic\n\n📲 0358 467-8722",
-      "DISPENSARIO MUNICIPAL Nº 12📌🏥Ing. Dinkeldein 3265\n\n📍https://maps.app.goo.gl/x1vzb8Mk7ZzZSbRM6?g_st=ic",
-      "Dispensario N° 7📌🏥Paso de los Andes 1224\n\n📍https://maps.app.goo.gl/mr41yGvigUTZ2PWq8?g_st=ic\n\n📲0358 476-8420",
-      "Dispensario 14📌🏥Leopoldo Lugones\n\n📍https://maps.app.goo.gl/WGYfDfQkuzYY1E1K9?g_st=ic",
-      "Dispensario N°5📌🏥Wenceslao Tejerina Nte. 502-600\n\n📍https://maps.app.goo.gl/PPMAfdMy5YVekFsT7?g_st=ic\n\n📲0358 467-1288",
-      "Dispensario 2📌🏥Av. General José Garibaldi\n\n📍https://maps.app.goo.gl/YHEYtSi1U31bVKoX8?g_st=ic\n\n📲0358 467-1285",
-      "DISPENSARIO MUNICIPAL Nº 16📌🏥Venezuela 809\n\n📍https://maps.app.goo.gl/9MGgSnokdYJetoUB9?g_st=ic"
+      "Nuevo hospital San Antonio de Padua📌🏥 Guardias Nacionales 1027\n\n📍https://maps.app.goo.gl/6x3ZeoAVzThcksSv7?g_st=ic\n\n📲 0358 467-8700",
+      "Policlínico Privado San Lucas S.A.📌🏥 Mitre 930\n\n📍https://maps.app.goo.gl/nDEHjKrT6tSqGJC46?g_st=ic\n\n📲0358 467-5600",
+      "Centro Médico Belgrano📌🏥 Belgrano 387\n\n📍https://maps.app.goo.gl/hySD7cbWXkjU8QvZ8?g_st=ic\n\n📲0358 463-8093",
+      "Instituto Médico Río Cuarto📌🏥 Hipólito Yrigoyen 1020\n\n📍https://maps.app.goo.gl/XjaKkRjZGBNM1Afp6?g_st=ic\n\n📲0810-444-4672",
+      "Centro de Salud Municipal📌🏥 Cabrera 1344\n\n📍https://maps.app.goo.gl/N9VomHt8JGUMavETA?g_st=ic\n\n📲0358 476-8420",
+      "Clínica Regional del Sud📌🏥 Av. Italia 1262\n\n📍https://maps.app.goo.gl/JmHKqRrmeA891zNb9?g_st=ic\n\n📲0358 467-9500",
+      "Mitre Centro Médico📌🏥 Mitre 1288\n\n📍https://maps.app.goo.gl/SWogSuvcn9UVTLEd8?g_st=ic\n\n📲0358 462-5021",
+      "Fundacion Nuevo Hospital📌🏥 Guardias Nacionales 1051\n\n📍https://maps.app.goo.gl/UyQ3A7Tn9hwWJU4k7?g_st=ic\n\n📲 0358 467-8722",
+      "DISPENSARIO MUNICIPAL Nº 12📌🏥 Ing. Dinkeldein 3265\n\n📍https://maps.app.goo.gl/x1vzb8Mk7ZzZSbRM6?g_st=ic",
+      "Dispensario N° 7📌🏥 Paso de los Andes 1224\n\n📍https://maps.app.goo.gl/mr41yGvigUTZ2PWq8?g_st=ic\n\n📲0358 476-8420",
+      "Dispensario 14📌🏥 Leopoldo Lugones\n\n📍https://maps.app.goo.gl/WGYfDfQkuzYY1E1K9?g_st=ic",
+      "Dispensario N°5📌🏥 Wenceslao Tejerina Nte. 502-600\n\n📍https://maps.app.goo.gl/PPMAfdMy5YVekFsT7?g_st=ic\n\n📲0358 467-1288",
+      "Dispensario 2📌🏥 Av. General José Garibaldi\n\n📍https://maps.app.goo.gl/YHEYtSi1U31bVKoX8?g_st=ic\n\n📲0358 467-1285",
+      "DISPENSARIO MUNICIPAL Nº 16📌🏥 Venezuela 809\n\n📍https://maps.app.goo.gl/9MGgSnokdYJetoUB9?g_st=ic"
     ];
 
     setState(() {

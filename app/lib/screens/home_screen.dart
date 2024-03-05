@@ -76,8 +76,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> fetchReports() async {
     print('Fetching reports...');
-    final response =
-        await http.get(Uri.parse('http://192.168.88.138:5001/api/get-reports'));
+    final response = await http
+        .get(Uri.parse('https://cori-backend.vercel.app/api/get-reports'));
 
     if (response.statusCode == 200) {
       List<dynamic> reportsJson = json.decode(response.body);
