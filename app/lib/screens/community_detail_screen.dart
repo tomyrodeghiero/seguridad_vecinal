@@ -376,9 +376,6 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                                 children: [
                                   Image.asset('assets/cori.png',
                                       width: 20, height: 20),
-                                  SizedBox(width: 8),
-                                  Text('209',
-                                      style: TextStyle(color: Colors.black)),
                                   SizedBox(width: 16),
                                   Image.asset('assets/marker.png',
                                       width: 20, height: 20),
