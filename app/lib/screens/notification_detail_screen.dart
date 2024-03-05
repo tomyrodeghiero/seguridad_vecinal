@@ -103,7 +103,8 @@ class NotificationDetailScreen extends StatelessWidget {
 
             if (userEmail != null) {
               final response = await http.post(
-                Uri.parse('http://127.0.0.1:5001/api/mark-notification-read'),
+                Uri.parse(
+                    'http://192.168.88.138:5001/api/mark-notification-read'),
                 headers: <String, String>{
                   'Content-Type': 'application/json; charset=UTF-8',
                 },

@@ -4,6 +4,7 @@ import 'package:cori/colors.dart';
 import 'package:cori/components/custom_drawer.dart';
 import 'package:cori/screens/community_post_screen.dart';
 import 'package:cori/screens/post_screen.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -24,13 +25,84 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   String _fullName = '';
   String _imageUrl = '';
   bool _isJoined = false;
+  int _currentMemberCount = 0;
+  bool _originalIsJoinedState = false;
+
+  Future<void> joinNeighborhood(
+      String userEmail, String neighborhoodName) async {
+    final url = Uri.parse('http://192.168.88.138:5001/api/join-neighborhood');
+    final response = await http.post(url,
+        body: jsonEncode({
+          'userEmail': userEmail,
+          'neighborhood': neighborhoodName,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        });
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _isJoined = true;
+        _originalIsJoinedState = true;
+        _currentMemberCount += 1;
+      });
+
+      Fluttertoast.showToast(
+          msg: "Te has unido exitosamente al vecindario.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      Fluttertoast.showToast(
+          msg: "Error al unirse al vecindario. Intenta de nuevo.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  String _userEmail = ''; // Añade esta línea
 
   Future<void> _loadUserData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _fullName = prefs.getString('fullName') ?? 'Nombre no disponible';
       _imageUrl = prefs.getString('imageUrl') ?? '';
+      _userEmail =
+          prefs.getString('userEmail') ?? ''; // Carga el correo electrónico
     });
+  }
+
+  Future<void> checkMembership() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userEmail = prefs.getString('userEmail');
+
+    final url = Uri.parse(
+        'http://192.168.88.138:5001/api/check-membership?userEmail=$userEmail&neighborhood=${widget.neighborhoodName}');
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final responseBody = json.decode(response.body);
+      setState(() {
+        _isJoined = responseBody['isJoined'];
+      });
+    } else {
+      Fluttertoast.showToast(
+          msg: "Error al verificar la membresía. Intenta de nuevo.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
   }
 
   List<Report> reports = [];
@@ -38,7 +110,11 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _currentMemberCount = widget.memberCount;
+    _originalIsJoinedState = _isJoined;
+    _loadUserData().then((_) {
+      checkMembership();
+    });
     fetchReports();
   }
 
@@ -62,7 +138,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   Future<void> fetchReports() async {
     print('Fetching reports...');
     final response = await http.get(Uri.parse(
-        'http://127.0.0.1:5001/api/get-reports-by-neighborhood?neighborhood=${Uri.encodeComponent(widget.neighborhoodName)}'));
+        'http://192.168.88.138:5001/api/get-reports-by-neighborhood?neighborhood=${Uri.encodeComponent(widget.neighborhoodName)}'));
 
     if (response.statusCode == 200) {
       List<dynamic> reportsJson = json.decode(response.body);
@@ -88,7 +164,13 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
             'assets/back-arrow.png',
             height: 24.0,
           ),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (_originalIsJoinedState == true) {
+              Navigator.of(context).pop(true);
+            } else {
+              Navigator.of(context).pop();
+            }
+          },
         ),
       ),
       drawer: CustomDrawer(
@@ -130,7 +212,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                               color: AppColors.purple500),
                         ),
                         Text(
-                          '${widget.memberCount} miembros',
+                          '${_currentMemberCount} miembros',
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
                             fontSize: 16.0,
@@ -142,9 +224,10 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                           height: 28.0,
                           child: FloatingActionButton.extended(
                             onPressed: () {
-                              setState(() {
-                                _isJoined = !_isJoined;
-                              });
+                              if (!_isJoined) {
+                                joinNeighborhood(
+                                    _userEmail, widget.neighborhoodName);
+                              }
                             },
                             label: Text(
                               _isJoined ? 'Unido' : 'Unirme',

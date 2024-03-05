@@ -84,7 +84,7 @@ class _PostScreenState extends State<PostScreen> {
         return;
       }
 
-      var uri = Uri.parse('http://127.0.0.1:5001/api/create-report');
+      var uri = Uri.parse('http://192.168.88.138:5001/api/create-report');
       var request = http.MultipartRequest('POST', uri);
 
       request.fields['senderEmail'] = userEmail;

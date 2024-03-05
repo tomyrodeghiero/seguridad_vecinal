@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
     Future<void> loginUser(
         String email, String password, BuildContext context) async {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:5001/api/validate-login'),
+        Uri.parse('http://192.168.88.138:5001/api/validate-login'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -138,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (userCredential.user != null) {
                     final response = await http.get(
                       Uri.parse(
-                          'http://127.0.0.1:5001/api/check-email?email=${userCredential.user!.email}'),
+                          'http://192.168.88.138:5001/api/check-email?email=${userCredential.user!.email}'),
                     );
                     if (response.statusCode == 200) {
                       final data = jsonDecode(response.body);

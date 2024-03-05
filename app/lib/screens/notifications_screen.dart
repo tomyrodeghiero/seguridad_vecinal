@@ -52,7 +52,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (userEmail != null) {
       final response = await http.get(
         Uri.parse(
-            'http://127.0.0.1:5001/api/get-unread-notifications?email=$userEmail'),
+            'http://192.168.88.138:5001/api/get-unread-notifications?email=$userEmail'),
       );
 
       if (response.statusCode == 200) {

@@ -29,7 +29,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   Future<List<Community>> fetchCommunitiesFromApi() async {
     final url =
-        Uri.parse('http://127.0.0.1:5001/api/get-communities-from-users');
+        Uri.parse('http://192.168.88.138:5001/api/get-communities-from-users');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -143,7 +143,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
                             neighborhoodName: community.name,
                             memberCount: community.memberCount),
                       ),
-                    );
+                    ).then((value) {
+                      if (value == true) {
+                        fetchCommunitiesFromApi().then((_) {
+                          setState(() {});
+                        });
+                      }
+                    });
                   },
                   child: Container(
                     decoration: BoxDecoration(

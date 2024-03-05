@@ -22,13 +22,14 @@ class _SplashScreenState extends State<SplashScreen> {
   void checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userEmail = prefs.getString('userEmail');
+
     if (userEmail == null) {
       Navigator.of(context)
           .pushReplacement(MaterialPageRoute(builder: (_) => LoginScreen()));
     } else {
       // Realiza la solicitud HTTP al nuevo endpoint
-      final response = await http.get(
-          Uri.parse('http://127.0.0.1:5001/api/check-email?email=$userEmail'));
+      final response = await http.get(Uri.parse(
+          'http://192.168.88.138:5001/api/check-email?email=$userEmail'));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

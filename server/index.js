@@ -24,12 +24,6 @@ const cors = require('cors');
 app.use(cors());
 connectDB();
 
-const oauth2Client = new google.auth.OAuth2(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
-    process.env.REDIRECT_URI
-);
-
 const getStoredRefreshToken = async () => {
     const token = await Token.findOne();
     return token ? token.refreshToken : null;
@@ -58,38 +52,6 @@ app.get("/google/redirect", async (req, res) => {
     fs.writeFileSync("credentials.json", JSON.stringify(tokens));
     res.send("Authenticated");
 });
-
-oauth2Client.on("tokens", async (tokens) => {
-    if (tokens.refresh_token) {
-        await storeRefreshToken(tokens.refresh_token);
-    }
-});
-
-async function initializeOAuthClient() {
-    try {
-        const storedRefreshToken = await getStoredRefreshToken();
-        if (storedRefreshToken) {
-            oauth2Client.setCredentials({ refresh_token: storedRefreshToken });
-            console.log("OAuth client initialized with stored refresh token.");
-        } else {
-            console.log("No stored refresh token found.");
-        }
-    } catch (error) {
-        console.error("Error initializing OAuth client", error);
-    }
-}
-
-// Store refresh token
-const storeRefreshToken = async (refreshToken) => {
-    const existingToken = await Token.findOne();
-    if (existingToken) {
-        existingToken.refreshToken = refreshToken;
-        await existingToken.save();
-    } else {
-        const token = new Token({ refreshToken });
-        await token.save();
-    }
-};
 
 // Register User
 app.post('/api/register-user', async (req, res) => {
@@ -405,35 +367,54 @@ app.get('/api/get-communities-from-users', async (req, res) => {
     try {
         const predefinedNeighborhoods = ["Micro centro", "Alberdi", "Banda Norte", "Bimaco", "Barrio Jardín", "Otro"];
 
-        const communityCounts = await User.aggregate([
-            {
-                $match: {
-                    neighborhood: { $in: predefinedNeighborhoods }
+        // Inicializa los conteos de comunidad y reportes para cada vecindario predefinido
+        const neighborhoodData = predefinedNeighborhoods.reduce((acc, neighborhood) => {
+            acc[neighborhood] = { membersCount: 0, reportsCount: 0 };
+            return acc;
+        }, {});
+
+        // Obtiene la cuenta de miembros por vecindario considerando 'neighborhood' y 'joinedNeighborhoods'
+        const users = await User.find({
+            $or: [
+                { neighborhood: { $in: predefinedNeighborhoods } },
+                { joinedNeighborhoods: { $in: predefinedNeighborhoods } }
+            ]
+        });
+
+        // Contabiliza cada usuario para su vecindario y los vecindarios a los que se ha unido
+        users.forEach(user => {
+            if (predefinedNeighborhoods.includes(user.neighborhood)) {
+                neighborhoodData[user.neighborhood].membersCount += 1;
+            }
+            user.joinedNeighborhoods.forEach(joinedNeighborhood => {
+                if (predefinedNeighborhoods.includes(joinedNeighborhood)) {
+                    neighborhoodData[joinedNeighborhood].membersCount += 1;
                 }
-            },
+            });
+        });
+
+        // Obtiene la cuenta de reportes por vecindario
+        const reportCounts = await Report.aggregate([
             {
                 $group: {
                     _id: "$neighborhood",
-                    membersCount: { $sum: 1 }
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    neighborhood: "$_id",
-                    membersCount: 1
+                    reportsCount: { $sum: 1 }
                 }
             }
         ]);
 
-        const countsByNeighborhood = communityCounts.reduce((acc, { neighborhood, membersCount }) => {
-            acc[neighborhood] = membersCount;
-            return acc;
-        }, {});
+        // Actualiza los conteos de reportes en el objeto neighborhoodData
+        reportCounts.forEach(report => {
+            if (neighborhoodData[report._id]) {
+                neighborhoodData[report._id].reportsCount = report.reportsCount;
+            }
+        });
 
-        const result = predefinedNeighborhoods.map(neighborhood => ({
-            neighborhood,
-            membersCount: countsByNeighborhood[neighborhood] || 0
+        // Prepara la respuesta final utilizando la estructura neighborhoodData
+        const result = Object.keys(neighborhoodData).map(neighborhood => ({
+            neighborhood: neighborhood,
+            membersCount: neighborhoodData[neighborhood].membersCount,
+            reportsCount: neighborhoodData[neighborhood].reportsCount,
         }));
 
         res.status(200).json(result);
@@ -442,6 +423,7 @@ app.get('/api/get-communities-from-users', async (req, res) => {
         res.status(500).send("Error fetching communities from users");
     }
 });
+
 
 app.get('/api/get-reports-by-neighborhood', async (req, res) => {
     const { neighborhood } = req.query;
@@ -511,6 +493,55 @@ app.get('/api/get-reports-summary', async (req, res) => {
     } catch (error) {
         console.error("Error fetching reports summary:", error);
         res.status(500).send("Error al obtener el resumen de los reportes por barrio.");
+    }
+});
+
+app.post('/api/join-neighborhood', async (req, res) => {
+    const { userEmail, neighborhood } = req.body;
+    console.log("userEmail", userEmail);
+    console.log("neighborhood", neighborhood);
+
+    if (!userEmail || !neighborhood) {
+        return res.status(400).send({ message: 'Email y vecindario son requeridos.' });
+    }
+
+    try {
+        const user = await User.findOne({ email: userEmail });
+        if (!user) {
+            return res.status(404).send({ message: 'Usuario no encontrado.' });
+        }
+
+        // Añade el vecindario al arreglo si aún no está presente
+        if (!user.joinedNeighborhoods.includes(neighborhood)) {
+            user.joinedNeighborhoods.push(neighborhood);
+            await user.save();
+        }
+
+        res.status(200).json({ message: 'Vecindario añadido exitosamente.', joinedNeighborhoods: user.joinedNeighborhoods });
+    } catch (error) {
+        console.error("Error al unirse al vecindario:", error);
+        res.status(500).send("Error al unirse al vecindario.");
+    }
+});
+
+app.get('/api/check-membership', async (req, res) => {
+    const { userEmail, neighborhood } = req.query;
+
+    if (!userEmail || !neighborhood) {
+        return res.status(400).send({ message: 'Email y vecindario son requeridos.' });
+    }
+
+    try {
+        const user = await User.findOne({ email: userEmail, $or: [{ neighborhood: neighborhood }, { joinedNeighborhoods: neighborhood }] });
+
+        if (user) {
+            return res.status(200).json({ isJoined: true });
+        } else {
+            return res.status(200).json({ isJoined: false });
+        }
+    } catch (error) {
+        console.error("Error verificando la membresía del usuario:", error);
+        res.status(500).send("Error al verificar la membresía.");
     }
 });
 
