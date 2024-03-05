@@ -175,18 +175,18 @@ app.post('/api/create-report', async (req, res) => {
             });
         });
 
-        let { senderEmail, description, title, neighborhood } = fields;
+        let { senderEmail, title, neighborhood } = fields;
 
-        // Normaliza los campos en caso de que sean arrays
         senderEmail = Array.isArray(senderEmail) ? senderEmail[0] : senderEmail;
         title = Array.isArray(title) ? title[0] : title;
-        description = Array.isArray(description) ? description[0] : description;
         neighborhood = Array.isArray(neighborhood) ? neighborhood[0] : neighborhood;
+        console.log("fields", fields);
 
-        // Verifica que la descripción exista
-        if (!description) {
-            return res.status(400).send("Description is required");
+        let description = fields.description;
+        if (Array.isArray(description)) {
+            description = description[0];
         }
+        console.log("description", description);
 
         let imageUrls = [];
         if (Array.isArray(files.images)) {
@@ -238,6 +238,7 @@ app.post('/api/create-report', async (req, res) => {
         res.status(500).send("Error saving the report");
     }
 });
+
 app.post('/api/validate-login', async (req, res) => {
     const { email, password } = req.body;
 
