@@ -151,22 +151,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (data['exists']) {
                         final SharedPreferences prefs =
                             await SharedPreferences.getInstance();
+                        await prefs.setString('userEmail', data['userEmail']);
                         await prefs.setString(
-                            'userEmail', userCredential.user!.email!);
+                            'fullName', data['fullName'] ?? '');
                         await prefs.setString(
-                            'fullName', userCredential.user!.displayName ?? '');
-                        await prefs.setString('googlePhotoURL',
-                            userCredential.user!.photoURL ?? '');
+                            'imageUrl', data['imageUrl'] ?? '');
                         Navigator.of(context).pushReplacementNamed('/home');
                       } else {
                         final args = {
                           'email': userCredential.user!.email,
                         };
-                        Navigator.pushNamed(
-                          context,
-                          '/register',
-                          arguments: args,
-                        );
+                        Navigator.pushNamed(context, '/register',
+                            arguments: args);
                       }
                     } else {
                       print('Error consultando si el usuario existe.');

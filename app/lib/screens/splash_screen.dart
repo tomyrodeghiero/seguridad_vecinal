@@ -4,8 +4,6 @@ import 'package:cori/colors.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cori/screens/login_screen.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -27,22 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.of(context)
           .pushReplacement(MaterialPageRoute(builder: (_) => LoginScreen()));
     } else {
-      // Realiza la solicitud HTTP al nuevo endpoint
-      final response = await http.get(Uri.parse(
-          'https://cori-backend.vercel.app/api/check-email?email=$userEmail'));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['exists']) {
-          Navigator.of(context).pushNamed('/home');
-        } else {
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => LoginScreen()));
-        }
-      } else {
-        Navigator.of(context)
-            .pushReplacement(MaterialPageRoute(builder: (_) => LoginScreen()));
-      }
+      Navigator.of(context).pushReplacementNamed('/home');
     }
   }
 
