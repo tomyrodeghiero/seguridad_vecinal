@@ -136,9 +136,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 try {
                   final userCredential = await AuthService().signInWithGoogle();
                   if (userCredential.user != null) {
-                    final response = await http.get(
+                    final response = await http.post(
                       Uri.parse(
-                          'https://cori-backend.vercel.app/api/check-email?email=${userCredential.user!.email}'),
+                          'https://cori-backend.vercel.app/api/check-email'),
+                      headers: <String, String>{
+                        'Content-Type': 'application/json; charset=UTF-8',
+                      },
+                      body: jsonEncode(<String, String>{
+                        'email': userCredential.user!.email!,
+                      }),
                     );
                     if (response.statusCode == 200) {
                       final data = jsonDecode(response.body);

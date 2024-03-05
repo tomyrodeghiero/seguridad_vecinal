@@ -243,7 +243,6 @@ app.post('/api/create-report', async (req, res) => {
 
 app.post('/api/validate-login', async (req, res) => {
     const { email, password } = req.body;
-    console.log("email VL", email)
 
     try {
         const user = await User.findOne({ email, password });
@@ -264,24 +263,28 @@ app.post('/api/validate-login', async (req, res) => {
 
 
 // Check if an email exist in the Database
-app.get('/api/check-email', async (req, res) => {
-    const { email } = req.query;
+app.post('/api/check-email', async (req, res) => {
+    const { email } = req.body;
     if (!email) {
         return res.status(400).send({ message: 'Email is required' });
     }
     try {
         const user = await User.findOne({ email });
-        console.log("HAY USER ", user)
         if (user) {
-            res.status(200).json({ exists: true });
+            res.status(200).json({
+                message: 'Login successful',
+                userEmail: user.email,
+                fullName: user.fullName,
+                imageUrl: user.imageUrl,
+                exists: true
+            });
         } else {
-            res.status(200).json({ exists: false });
+            res.status(200).json({ exists: false, message: 'Invalid credentials' });
         }
     } catch (error) {
         res.status(500).send('Error checking email');
     }
 });
-
 
 // Get Reports
 app.get('/api/get-reports', async (req, res) => {
