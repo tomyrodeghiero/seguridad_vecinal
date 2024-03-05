@@ -164,11 +164,16 @@ async function uploadToCloudinary(filePath) {
 app.post('/api/create-report', async (req, res) => {
     const form = new formidable.IncomingForm();
 
-    form.parse(req, async (err, fields, files) => {
-        if (err) {
-            console.error("Error parsing the files", err);
-            return res.status(500).send("Error processing the form");
-        }
+    try {
+        const { fields, files } = await new Promise((resolve, reject) => {
+            form.parse(req, (err, fields, files) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve({ fields, files });
+            });
+        });
 
         let senderEmail = fields.senderEmail;
         let description = fields.description;
@@ -176,18 +181,10 @@ app.post('/api/create-report', async (req, res) => {
         let neighborhood = fields.neighborhood;
         const images = files.images;
 
-        if (Array.isArray(senderEmail)) {
-            senderEmail = senderEmail[0];
-        }
-        if (Array.isArray(title)) {
-            title = title[0];
-        }
-        if (Array.isArray(description)) {
-            description = description[0];
-        }
-        if (Array.isArray(neighborhood)) {
-            neighborhood = neighborhood[0];
-        }
+        if (Array.isArray(senderEmail)) senderEmail = senderEmail[0];
+        if (Array.isArray(title)) title = title[0];
+        if (Array.isArray(description)) description = description[0];
+        if (Array.isArray(neighborhood)) neighborhood = neighborhood[0];
 
         let imageUrls = [];
         if (Array.isArray(images)) {
@@ -205,7 +202,7 @@ app.post('/api/create-report', async (req, res) => {
 
         const newReport = new Report({
             title,
-            description: description,
+            description,
             neighborhood,
             timestamp: new Date(),
             images: imageUrls,
@@ -213,32 +210,31 @@ app.post('/api/create-report', async (req, res) => {
             senderProfileImage,
         });
 
-        try {
-            await newReport.save();
+        await newReport.save();
 
-            const users = await User.find({ email: { $ne: senderEmail } });
-            for (let user of users) {
-                const newNotification = new Notification({
-                    message: newReport.title,
-                    recipientEmail: user.email,
-                    title,
-                    description: description,
-                    neighborhood,
-                    timestamp: new Date(),
-                    images: imageUrls,
-                    senderEmail,
-                    senderProfileImage,
-                });
-                await newNotification.save();
-            }
-
-            res.json({ message: 'Report created successfully', reportId: newReport._id, senderProfileImage });
-            console.log("Report created successfully: ", newReport);
-        } catch (error) {
-            console.error("Error saving the report:", error);
-            res.status(500).send("Error saving the report");
+        const users = await User.find({ email: { $ne: senderEmail } });
+        for (let user of users) {
+            const newNotification = new Notification({
+                message: newReport.title,
+                recipientEmail: user.email,
+                title,
+                description,
+                neighborhood,
+                timestamp: new Date(),
+                images: imageUrls,
+                senderEmail,
+                senderProfileImage,
+            });
+            await newNotification.save();
         }
-    });
+
+        res.json({ message: 'Report created successfully', reportId: newReport._id, senderProfileImage });
+        console.log("Report created successfully: ", newReport);
+
+    } catch (error) {
+        console.error("Error processing the form:", error);
+        res.status(500).send("Error saving the report");
+    }
 });
 
 app.post('/api/validate-login', async (req, res) => {
