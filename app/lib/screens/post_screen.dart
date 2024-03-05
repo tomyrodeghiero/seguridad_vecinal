@@ -280,7 +280,7 @@ class _PostScreenState extends State<PostScreen> {
                   ),
                   SizedBox(height: 12.0),
                   Expanded(
-                    child: TextFormField(
+                    child: TextField(
                       controller: _descriptionController,
                       decoration: InputDecoration(
                         labelText: 'Describe lo que sucedió...',
