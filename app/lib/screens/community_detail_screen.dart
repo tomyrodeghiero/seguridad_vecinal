@@ -141,10 +141,13 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
         'https://cori-backend.vercel.app/api/get-reports-by-neighborhood?neighborhood=${Uri.encodeComponent(widget.neighborhoodName)}'));
 
     if (response.statusCode == 200) {
-      List<dynamic> reportsJson = json.decode(response.body);
-      setState(() {
-        reports = reportsJson.map((json) => Report.fromJson(json)).toList();
-      });
+      final data = json.decode(response.body);
+      if (data['reports'] != null) {
+        final List<dynamic> reportsJson = data['reports'];
+        setState(() {
+          reports = reportsJson.map((json) => Report.fromJson(json)).toList();
+        });
+      }
     } else {
       print('Failed to load reports: ${response.statusCode}');
     }
@@ -212,7 +215,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                               color: AppColors.purple500),
                         ),
                         Text(
-                          '${_currentMemberCount} miembros',
+                          '$_currentMemberCount ${_currentMemberCount == 1 ? "miembro" : "miembros"}',
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
                             fontSize: 16.0,

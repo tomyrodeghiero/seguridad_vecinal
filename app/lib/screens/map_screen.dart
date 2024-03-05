@@ -138,7 +138,9 @@ class _MapScreenState extends State<MapScreen> {
     fetchNeighborhoodReports();
   }
 
-  void _loadNeighborhoodReports() {
+  void _loadNeighborhoodReports() async {
+    await fetchNeighborhoodReports();
+
     if (_contentType == MapContentType.neighborhoodReports) {
       _clearMap();
       return;

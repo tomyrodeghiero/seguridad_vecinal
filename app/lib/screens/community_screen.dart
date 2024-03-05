@@ -188,7 +188,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                     ),
                                   ),
                                   Text(
-                                    '${community.memberCount} miembros',
+                                    '${community.memberCount} ${community.memberCount == 1 ? "miembro" : "miembros"}',
                                     style: TextStyle(
                                       color: Colors.grey[800],
                                       fontSize: 16.0,
