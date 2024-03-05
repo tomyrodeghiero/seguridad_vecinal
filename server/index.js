@@ -157,6 +157,7 @@ async function uploadToCloudinary(filePath) {
 
 app.post('/api/create-report', async (req, res) => {
     const form = new formidable.IncomingForm();
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     form.parse(req, async (err, fields, files) => {
         if (err) {
@@ -184,7 +185,9 @@ app.post('/api/create-report', async (req, res) => {
             const images = results.map(result => result.secure_url);
 
             const title = Array.isArray(fields.title) ? fields.title[0] : fields.title;
-            const message = Array.isArray(fields.message) ? fields.message[0] : fields.message;
+
+            let message = Array.isArray(fields.message) && fields.message.length > 0 ? fields.message[0] : title;
+
             const neighborhood = Array.isArray(fields.neighborhood) ? fields.neighborhood[0] : fields.neighborhood;
             const senderEmail = Array.isArray(fields.senderEmail) ? fields.senderEmail[0] : fields.senderEmail;
 
@@ -201,24 +204,25 @@ app.post('/api/create-report', async (req, res) => {
                 senderProfileImage,
             });
 
+            await newReport.save();
+
             const users = await User.find({ email: { $ne: senderEmail } });
-            for (let user of users) {
+            users.forEach(async user => {
                 const newNotification = new Notification({
-                    message: newReport.title,
+                    message: newReport.message,
                     recipientEmail: user.email,
                     title,
                     message,
                     neighborhood,
                     timestamp: new Date(),
-                    images: imageUrls,
+                    images: images,
                     senderEmail,
                     senderProfileImage,
                 });
                 await newNotification.save();
-            }
+            });
 
-            await newReport.save();
-            res.status(200).json({ message: 'Reporte creado con éxito' });
+            res.status(200).json({ message: 'Reporte creado con éxito', reportId: newReport._id });
         } catch (uploadError) {
             console.error(uploadError);
             res.status(500).json({ message: 'Error al subir las imágenes' });
