@@ -10,9 +10,9 @@ const reportSchema = new mongoose.Schema({
     audios: [String],
     senderEmail: {
         type: String,
-        required: true
     },
     senderProfileImage: String,
+    senderFullName: String,
 });
 
 module.exports = mongoose.model('Report', reportSchema);
