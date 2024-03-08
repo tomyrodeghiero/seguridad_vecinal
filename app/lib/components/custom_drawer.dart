@@ -1,5 +1,8 @@
 // custom_drawer.dart
+import 'package:cori/screens/help_center.dart';
 import 'package:cori/screens/login_screen.dart';
+import 'package:cori/screens/privacy_screen.dart';
+import 'package:cori/screens/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cori/colors.dart';
 import 'package:cori/screens/profile_screen.dart';
@@ -159,16 +162,29 @@ class CustomDrawer extends StatelessWidget {
                               color: Colors.white,
                               fontSize: 18.0,
                               fontWeight: FontWeight.w500)),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PrivacyScreen()),
+                        );
+                      },
                     ),
                     ListTile(
-                      leading: Icon(Icons.settings, color: Colors.white),
+                      leading:
+                          Icon(Icons.settings_outlined, color: Colors.white),
                       title: Text('Configuración',
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 18.0,
                               fontWeight: FontWeight.w500)),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SettingsScreen()),
+                        );
+                      },
                     ),
                     ListTile(
                       leading: Icon(Icons.help_outline, color: Colors.white),
@@ -177,7 +193,13 @@ class CustomDrawer extends StatelessWidget {
                               color: Colors.white,
                               fontSize: 18.0,
                               fontWeight: FontWeight.w500)),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => HelpCenterScreen()),
+                        );
+                      },
                     ),
                     ListTile(
                       leading:

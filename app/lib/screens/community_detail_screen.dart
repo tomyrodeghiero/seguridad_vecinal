@@ -1,4 +1,5 @@
 import 'package:cori/screens/home_screen.dart';
+import 'package:cori/screens/join_to_community_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cori/colors.dart';
 import 'package:cori/components/custom_drawer.dart';
@@ -229,7 +230,19 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                             onPressed: () {
                               if (!_isJoined) {
                                 joinNeighborhood(
-                                    _userEmail, widget.neighborhoodName);
+                                        _userEmail, widget.neighborhoodName)
+                                    .then((_) {
+                                  // Después de unirte, rediriges al usuario a JoinToCommunityScreen
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          JoinToCommunityScreen(),
+                                    ),
+                                  ).then((value) {
+                                    setState(() {});
+                                  });
+                                });
                               }
                             },
                             label: Text(

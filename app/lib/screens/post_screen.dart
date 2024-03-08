@@ -113,34 +113,35 @@ class _PostScreenState extends State<PostScreen> {
           );
         }
         try {
-          var response = await request.send();
+          Navigator.pushNamed(context, "/feedback");
 
-          if (response.statusCode == 200) {
-            print("Reporte creado con éxito.");
+          // var response = await request.send();
 
-            Fluttertoast.showToast(
-              msg: "¡Gracias! Tu reporte fue creado correctamente.",
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 2,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
+          // if (response.statusCode == 200) {
+          //   print("Reporte creado con éxito.");
 
-            Navigator.of(context).pop(true);
-          } else {
-            print("Falló la creación del reporte.");
-            Fluttertoast.showToast(
-              msg: "Error al guardar el reporte, intenta nuevamente.",
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
-          }
+          //   Fluttertoast.showToast(
+          //     msg: "¡Gracias! Tu reporte fue creado correctamente.",
+          //     toastLength: Toast.LENGTH_LONG,
+          //     gravity: ToastGravity.BOTTOM,
+          //     timeInSecForIosWeb: 2,
+          //     backgroundColor: Colors.green,
+          //     textColor: Colors.white,
+          //     fontSize: 16.0,
+          //   );
+
+          // } else {
+          //   print("Falló la creación del reporte.");
+          //   Fluttertoast.showToast(
+          //     msg: "Error al guardar el reporte, intenta nuevamente.",
+          //     toastLength: Toast.LENGTH_LONG,
+          //     gravity: ToastGravity.BOTTOM,
+          //     timeInSecForIosWeb: 1,
+          //     backgroundColor: Colors.red,
+          //     textColor: Colors.white,
+          //     fontSize: 16.0,
+          //   );
+          // }
         } catch (e) {
           print("Error al enviar el reporte: $e");
           Fluttertoast.showToast(

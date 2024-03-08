@@ -38,6 +38,7 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   List<NotificationModel> notifications = [];
+  bool _isLoading = true; // Añade esta línea
 
   @override
   void initState() {
@@ -46,6 +47,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _fetchNotifications() async {
+    setState(() {
+      _isLoading = true; // Indica que la carga de datos ha comenzado
+    });
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userEmail = prefs.getString('userEmail');
 
@@ -54,16 +58,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         Uri.parse('https://cori-backend.vercel.app/api/get-reports'),
       );
 
-      if (response.statusCode == 200) {
-        List<dynamic> reportsJson = json.decode(response.body);
-        setState(() {
+      setState(() {
+        _isLoading = false; // Indica que la carga de datos ha finalizado
+        if (response.statusCode == 200) {
+          List<dynamic> reportsJson = json.decode(response.body);
           notifications = reportsJson
               .map((json) => NotificationModel.fromJson(json))
               .toList();
-        });
-      } else {
-        print('Error fetching reports: ${response.statusCode}');
-      }
+        } else {
+          print('Error fetching reports: ${response.statusCode}');
+        }
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -78,13 +87,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 style: TextStyle(
                     fontSize: 22.0,
                     color: AppColors.purple500,
-                    fontWeight: FontWeight.w600)),
+                    fontWeight: FontWeight.w500)),
           ],
         ),
         centerTitle: false,
         leading: IconButton(
           icon: Image.asset(
-            'assets/back-arrow-colored.png',
+            'assets/back-arrow.png',
             height: 24.0,
           ),
           onPressed: () => Navigator.of(context).pop(),
@@ -103,15 +112,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ],
       ),
       backgroundColor: Colors.white,
-      body: ListView.builder(
-        itemCount: notifications.length,
-        itemBuilder: (context, index) {
-          return _buildNotificationItem(
-            notification: notifications[index],
-            context: context,
-          );
-        },
-      ),
+      body: _isLoading // Comprueba si está cargando
+          ? Center(child: CircularProgressIndicator()) // Muestra el indicador
+          : ListView.builder(
+              // De lo contrario, muestra la lista
+              itemCount: notifications.length,
+              itemBuilder: (context, index) {
+                return _buildNotificationItem(
+                  notification: notifications[index],
+                  context: context,
+                );
+              },
+            ),
     );
   }
 
@@ -132,13 +144,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           notification.title,
           style: TextStyle(
               color: AppColors.purple500,
-              fontWeight: FontWeight.w600,
-              fontSize: 22.0),
+              fontWeight: FontWeight.w500,
+              fontSize: 22.0,
+              height: 1.15),
         ),
         subtitle: Padding(
           padding: EdgeInsets.only(
               top:
-                  8.0), // Añade un poco de espacio entre el título y la descripción
+                  4.0), // Añade un poco de espacio entre el título y la descripción
           child: Text(
             notification.message,
             style: TextStyle(
@@ -149,7 +162,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         ),
         trailing: Image.asset(
-          'assets/next-arrow-colored.png',
+          'assets/next-arrow.png',
           height: 24,
         ),
         onTap: () async {

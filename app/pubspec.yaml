@@ -132,6 +132,21 @@ flutter:
     - assets/onboarding-01.png
     - assets/onboarding-02.png
     - assets/onboarding-03.png
+    - assets/reaction-01.png
+    - assets/reaction-02.png
+    - assets/reaction-03.png
+    - assets/reaction-04.png
+    - assets/reaction-05.png
+    - assets/reaction-01-black.png
+    - assets/reaction-02-black.png
+    - assets/reaction-03-black.png
+    - assets/reaction-04-black.png
+    - assets/reaction-05-black.png
+    - assets/privacy-icon.png
+    - assets/check.png
+    - assets/check-colored.png
+    - assets/settings-icon.png
+    - assets/help-center-icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

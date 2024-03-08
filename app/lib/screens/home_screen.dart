@@ -17,6 +17,8 @@ class Report {
   final String senderEmail;
   final String senderProfileImage;
   final String senderFullName;
+  String selectedReaction;
+  int reactionCount = 0;
 
   Report({
     required this.title,
@@ -27,6 +29,7 @@ class Report {
     required this.senderEmail,
     required this.senderProfileImage,
     required this.senderFullName,
+    this.selectedReaction = 'assets/reaction-03.png',
   });
 
   factory Report.fromJson(Map<String, dynamic> json) {
@@ -61,8 +64,26 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _isLoading = true;
   String _fullName = '';
   String _imageUrl = '';
+
+  bool _isReactionBarVisible =
+      false; // New state to control the visibility of the reaction bar
+  String _selectedReaction = 'assets/reaction-03.png';
+
+  void _toggleReactionBar() {
+    setState(() {
+      _isReactionBarVisible = !_isReactionBarVisible;
+    });
+  }
+
+  void _selectReaction(String reaction, Report report) {
+    setState(() {
+      report.selectedReaction = reaction;
+      report.reactionCount = 1; // Establece el contador de reacciones a 1
+    });
+  }
 
   Future<void> _loadUserData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -75,17 +96,31 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Report> reports = [];
 
   Future<void> fetchReports() async {
-    print('Fetching reports...');
-    final response = await http
-        .get(Uri.parse('https://cori-backend.vercel.app/api/get-reports'));
+    setState(() {
+      _isLoading = true; // Indica que la carga de datos ha comenzado
+    });
 
-    if (response.statusCode == 200) {
-      List<dynamic> reportsJson = json.decode(response.body);
+    try {
+      final response = await http
+          .get(Uri.parse('https://cori-backend.vercel.app/api/get-reports'));
+
+      if (response.statusCode == 200) {
+        List<dynamic> reportsJson = json.decode(response.body);
+        setState(() {
+          reports = reportsJson.map((json) => Report.fromJson(json)).toList();
+          _isLoading = false;
+        });
+      } else {
+        print('Failed to load reports: ${response.statusCode}');
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Caught error: $e');
       setState(() {
-        reports = reportsJson.map((json) => Report.fromJson(json)).toList();
+        _isLoading = false;
       });
-    } else {
-      print('Failed to load reports: ${response.statusCode}');
     }
   }
 
@@ -105,6 +140,185 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _loadUserData();
     fetchReports();
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      // Si está cargando, muestra el indicador de actividad
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    } else {
+      // Si los datos ya se cargaron, muestra la lista de reportes
+      return ListView.builder(
+        itemCount: reports.length,
+        itemBuilder: (context, index) {
+          Report report = reports[index];
+          String fullmessage = report.message.join(" ");
+
+          String firstImage = report.images.isNotEmpty ? report.images[0] : '';
+
+          return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CommunityPostScreen(
+                    senderEmail: report.senderEmail,
+                    title: report.title,
+                    message: report.message,
+                    images: report.images,
+                    timestamp: report.timestamp,
+                    senderProfileImage: report.senderProfileImage,
+                    senderFullName: report.senderFullName,
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                  border: index > 0
+                      ? Border(
+                          top: BorderSide(width: 1.0, color: Colors.grey),
+                        )
+                      : null),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CircleAvatar(
+                          backgroundImage:
+                              NetworkImage(report.senderProfileImage),
+                          radius: 18,
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                report.senderFullName,
+                                style: TextStyle(
+                                  color: AppColors.purple500,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 18.0,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                fullmessage, // Usa la descripción completa
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.25,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (report.images.isNotEmpty) // Verifica si hay imágenes
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 48.0, top: 8.0, right: 16.0),
+                        child: FractionallySizedBox(
+                          widthFactor: 1.0,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(40.0),
+                            child: Image.network(
+                              // Cambiado a Image.network para cargar imágenes de la red
+                              firstImage,
+                              fit: BoxFit.cover,
+                              height: 164.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 48.0, top: 12.0),
+                      child: Row(
+                        children: [
+                          PopupMenuButton<String>(
+                            onSelected: (String value) {
+                              _selectReaction(value,
+                                  report); // Asegúrate de pasar el reporte correcto como argumento
+                            },
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(4.0)),
+                            ),
+                            itemBuilder: (BuildContext context) {
+                              return <PopupMenuEntry<String>>[
+                                PopupMenuItem<String>(
+                                  child: Container(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .spaceEvenly, // Distribuye los ítems uniformemente en el eje horizontal
+                                      children:
+                                          List<Widget>.generate(5, (int index) {
+                                        Widget image = Image.asset(
+                                            'assets/reaction-0${index + 1}.png',
+                                            width: 32);
+
+                                        // Decide si aplicar padding basado en la condición del índice o la ruta de la imagen
+                                        return 'assets/reaction-0${index + 1}.png' !=
+                                                'assets/reaction-01.png'
+                                            ? Padding(
+                                                padding:
+                                                    EdgeInsets.only(left: 12.0),
+                                                child: GestureDetector(
+                                                  onTap: () =>
+                                                      Navigator.of(context).pop(
+                                                          'assets/reaction-0${index + 1}.png'),
+                                                  child: image,
+                                                ),
+                                              )
+                                            : GestureDetector(
+                                                onTap: () =>
+                                                    Navigator.of(context).pop(
+                                                        'assets/reaction-0${index + 1}.png'),
+                                                child: image,
+                                              );
+                                      }),
+                                    ),
+                                  ),
+                                ),
+                              ];
+                            },
+                            child: Image.asset(report.selectedReaction,
+                                width: 24.0, height: 24.0),
+                          ),
+                          if (report.reactionCount > 0)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 8.0), // Añade padding aquí
+                              child: Text(
+                                '${report.reactionCount}',
+                                style: TextStyle(fontSize: 16.0),
+                              ),
+                            ),
+                          SizedBox(width: 16.0),
+                          Image.asset('assets/marker.png',
+                              width: 20, height: 20),
+                          SizedBox(width: 8),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -172,122 +386,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Expanded(
-              child: ListView.builder(
-                itemCount: reports.length,
-                itemBuilder: (context, index) {
-                  Report report = reports[index];
-                  String fullmessage = report.message.join(" ");
-
-                  String firstImage =
-                      report.images.isNotEmpty ? report.images[0] : '';
-
-                  return InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CommunityPostScreen(
-                            senderEmail: report.senderEmail,
-                            title: report.title,
-                            message: report.message,
-                            images: report.images,
-                            timestamp: report.timestamp,
-                            senderProfileImage: report.senderProfileImage,
-                            senderFullName: report.senderFullName,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          border: index > 0
-                              ? Border(
-                                  top: BorderSide(
-                                      width: 1.0, color: Colors.grey),
-                                )
-                              : null),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CircleAvatar(
-                                  backgroundImage:
-                                      NetworkImage(report.senderProfileImage),
-                                  radius: 18,
-                                ),
-                                SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        report.senderFullName,
-                                        style: TextStyle(
-                                          color: AppColors.purple500,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 18.0,
-                                        ),
-                                      ),
-                                      SizedBox(height: 4),
-                                      Text(
-                                        fullmessage, // Usa la descripción completa
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.25,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (report
-                                .images.isNotEmpty) // Verifica si hay imágenes
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 48.0, top: 8.0, right: 16.0),
-                                child: FractionallySizedBox(
-                                  widthFactor: 1.0,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(40.0),
-                                    child: Image.network(
-                                      // Cambiado a Image.network para cargar imágenes de la red
-                                      firstImage,
-                                      fit: BoxFit.cover,
-                                      height: 164.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 48.0, top: 12.0),
-                              child: Row(
-                                children: [
-                                  Image.asset('assets/cori.png',
-                                      width: 20, height: 20),
-                                  SizedBox(width: 16.0),
-                                  Image.asset('assets/marker.png',
-                                      width: 20, height: 20),
-                                  SizedBox(width: 8),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+              child: _buildBody(),
             ),
           ],
         ),

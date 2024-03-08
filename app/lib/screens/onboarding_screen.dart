@@ -22,8 +22,8 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
   final PageController _pageController = PageController(initialPage: 0);
-  final int _numPages = 3;
-  String _firstName = "Usuario"; // Valor por defecto
+  String _firstName = "Usuario";
+  final int _numPages = 4;
 
   _loadUserFirstName() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -58,18 +58,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 },
                 children: [
                   OnboardingContent(
-                    title: 'Bienvenido $_firstName',
                     description:
-                        'Cori es una aplicación que te permitirá sentirte más seguro en tu ciudad',
+                        'Soy Cori. Tu compañera virtual. Estoy aquí para hacer que tu experiencia sea agradable',
+                    title: 'Bienvenido $_firstName',
                     currentPage: _currentPage,
                     numPages: _numPages,
+                    shouldShowPagination: false,
+                    imagePath: 'assets/cori.png',
                   ),
                   OnboardingContent(
                     title: '',
                     description:
-                        'Con Cori podrás enterarte de las noticias más importantes contadas por los ciudadanos',
+                        'Cori es una aplicación que te ayudará sentirte más seguro en tu ciudad',
                     currentPage: _currentPage,
                     numPages: _numPages,
+                    shouldShowPagination: true,
+                    imagePath: 'assets/onboarding-01.png',
+                    imageWidth: 280,
+                    imageHeight: 280,
+                  ),
+                  OnboardingContent(
+                    title: '',
+                    description:
+                        'Con Cori podrás enterarte de las noticias más importantes de tu ciudad y formar comunidades',
+                    currentPage: _currentPage,
+                    numPages: _numPages,
+                    shouldShowPagination: true,
+                    imagePath: 'assets/onboarding-02.png',
+                    imageWidth: 280,
+                    imageHeight: 280,
                   ),
                   OnboardingContent(
                     title: '',
@@ -77,6 +94,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         'Cuenta con un botón de emergencia para que lo presiones cuando te sientas en peligro',
                     currentPage: _currentPage,
                     numPages: _numPages,
+                    shouldShowPagination: true,
+                    imagePath: 'assets/onboarding-03.png',
+                    imageWidth: 280,
+                    imageHeight: 280,
                   ),
                 ],
               ),
@@ -165,12 +186,20 @@ class OnboardingContent extends StatelessWidget {
   final String description;
   final int currentPage;
   final int numPages;
+  final bool shouldShowPagination;
+  final String? imagePath;
+  final double? imageWidth; // Nuevo parámetro para el ancho de la imagen
+  final double? imageHeight; // Nuevo parámetro para el alto de la imagen
 
   OnboardingContent({
     required this.title,
     required this.description,
     required this.currentPage,
     required this.numPages,
+    this.shouldShowPagination = true,
+    this.imagePath,
+    this.imageWidth, // Inicialización del nuevo parámetro
+    this.imageHeight, // Inicialización del nuevo parámetro
   });
 
   Widget _buildPageIndicator(bool isCurrentPage) {
@@ -187,7 +216,7 @@ class OnboardingContent extends StatelessWidget {
 
   List<Widget> _buildPageIndicators() {
     List<Widget> list = [];
-    for (int i = 0; i < numPages; i++) {
+    for (int i = 1; i < numPages; i++) {
       list.add(i == currentPage
           ? _buildPageIndicator(true)
           : _buildPageIndicator(false));
@@ -203,19 +232,15 @@ class OnboardingContent extends StatelessWidget {
         Flexible(
           flex: 2,
           child: Container(
-            width: 320,
-            height: 320,
+            width: imageWidth ?? 200,
+            height: imageHeight ?? 200,
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: Colors.black, width: 1),
               borderRadius: BorderRadius.circular(50),
             ),
-            child: Center(
-              child: Icon(
-                Icons.image,
-                size: 128,
-                color: Colors.grey,
-              ),
+            child: Image.asset(
+              imagePath!,
+              fit: BoxFit.contain,
             ),
           ),
         ),
@@ -223,13 +248,14 @@ class OnboardingContent extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+            fontSize: 26.0,
+            fontWeight: FontWeight.w600,
           ),
           textAlign: TextAlign.center,
         ),
+        SizedBox(height: 8),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 60.0),
+          padding: const EdgeInsets.symmetric(horizontal: 40.0),
           child: Text(
             description,
             textAlign: TextAlign.center,
@@ -240,10 +266,11 @@ class OnboardingContent extends StatelessWidget {
           ),
         ),
         SizedBox(height: 24),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: _buildPageIndicators(),
-        ),
+        if (shouldShowPagination)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: _buildPageIndicators(),
+          ),
       ],
     );
   }

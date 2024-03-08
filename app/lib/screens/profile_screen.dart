@@ -252,22 +252,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onPressed: () {},
                       ),
                     ),
-                    SizedBox(width: 16), // Espaciador entre los botones
+                    SizedBox(width: 16),
                     Expanded(
                       child: ElevatedButton.icon(
-                        icon: Image.asset('assets/hearth.png',
-                            width: 20), // Icono para Favoritos
+                        icon: Image.asset('assets/marker.png',
+                            width: 20, color: Colors.white),
                         label: Text(
-                          'Favoritos',
+                          'Guardados',
                           style: TextStyle(
                             fontSize: 18.0,
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          primary: AppColors
-                              .purple500, // Color del botón de Favoritos
+                          primary: AppColors.purple500,
                           onPrimary: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 4.0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18.0),
                           ),

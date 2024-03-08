@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cori/screens/feedback_screen.dart';
 import 'package:cori/screens/main_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -68,6 +69,7 @@ class App extends StatelessWidget {
               '/home': (context) => MainScreen(),
               '/notifications': (context) => NotificationsScreen(),
               '/post': (context) => PostScreen(),
+              '/feedback': (context) => FeedbackScreen(),
             },
           );
         }
